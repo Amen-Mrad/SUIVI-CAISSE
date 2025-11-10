@@ -1,0 +1,28 @@
+{
+  "name": "gestion-cais-comptable",
+  "version": "1.0.0",
+  "description": "Application de gestion comptable avec React/Express/MySQL",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": [
+    "comptabilité",
+    "gestion",
+    "caisse",
+    "react",
+    "express",
+    "mysql"
+  ],
+  "author": "Votre nom",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
+}
