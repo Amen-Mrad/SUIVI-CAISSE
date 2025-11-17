@@ -789,13 +789,13 @@ export default function AllClientsPage() {
                                 <table className="table modern-table">
                                     <thead>
                                         <tr>
+                                             <th>
+                                                <i className="fas fa-phone me-2"></i>
+                                                Code
+                                            </th>
                                             <th>
                                                 <i className="fas fa-user me-2"></i>
                                                 Nom
-                                            </th>
-                                            <th>
-                                                <i className="fas fa-phone me-2"></i>
-                                                Téléphone
                                             </th>
                                             <th>
                                                 <i className="fas fa-cogs me-2"></i>
@@ -807,14 +807,14 @@ export default function AllClientsPage() {
                                         {filteredClients.map((client) => (
                                             <tr key={client.id}>
                                                 <td>
-                                                    <strong>{client.nom}</strong>
-                                                    <br />
-                                                    <small className="text-muted">@{client.username}</small>
-                                                </td>
-                                                <td>
                                                     <i className="fas fa-phone me-2 text-primary"></i>
                                                     {client.telephone}
                                                 </td>
+                                                <td>
+                                                    <strong>{client.nom}</strong>
+                                                    <br />
+                                                </td>
+                                                
                                                 <td>
                                                     <div className="d-flex gap-2 justify-content-center" role="group">
                                                         {deleteMode ? (

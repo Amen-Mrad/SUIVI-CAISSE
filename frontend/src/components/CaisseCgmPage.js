@@ -436,14 +436,13 @@ export default function CaisseCgmPage() {
           <div>
             <h2 className="mb-2">
               <i className="fas fa-wallet me-2"></i>
-              Gestion de la Caisse CGM
+              Caisse CGM 
             </h2>
-            <p className="mb-0 opacity-75">Suivi des opérations de caisse en temps réel</p>
           </div>
           <div className="text-end">
             <div className="text-white-50 small mb-1">Solde Actuel</div>
             <div className="solde-display">
-              {formatMontant(soldeActuel)}
+            LIVE🟢{formatMontant(soldeActuel)}
             </div>
           </div>
         </div>

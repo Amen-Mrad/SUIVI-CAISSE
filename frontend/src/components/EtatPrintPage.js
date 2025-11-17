@@ -88,9 +88,9 @@ export default function EtatPrintPage({ mode = 'client' }) {
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     const d = new Date(dateStr);
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(d.getUTCDate()).padStart(2, '0');
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
     return `${day}/${m}/${y}`;
   };
 
@@ -226,7 +226,7 @@ export default function EtatPrintPage({ mode = 'client' }) {
   <div class="details-section">
     <table>
       <thead>
-        <tr><th>Date</th><th>Libellé</th><th>Montant</th></tr>
+        <tr><th>Date</th><th>Libellé</th><th>Client</th><th>Montant</th></tr>
       </thead>
       <tbody>
         ${honoraires.length > 0 ? honoraires.map(h => {
@@ -238,30 +238,56 @@ export default function EtatPrintPage({ mode = 'client' }) {
           <tr>
             <td>${formatDate(h.date)}</td>
             <td>${h.libelle || '-'}</td>
+            <td>${(h.client_nom || '') + ' ' + (h.client_prenom || '')}</td>
             <td>${formatMontant(montantAffiche)}</td>
           </tr>
         `;
-        }).join('') : `<tr><td colspan="3" style="text-align:center;color:#666;font-style:italic;">Aucun honoraire reçu</td></tr>`}
+        }).join('') : `<tr><td colspan="4" style="text-align:center;color:#666;font-style:italic;">Aucun honoraire reçu</td></tr>`}
       </tbody>
       <tfoot>
-        <tr class="total-row"><td colspan="2">TOTAL HONORAIRES REÇUS</td><td>${formatMontant(getTotalMontant(honoraires))}</td></tr>
+        <tr class="total-row"><td colspan="3">TOTAL HONORAIRES REÇUS</td><td>${formatMontant(getTotalMontant(honoraires))}</td></tr>
       </tfoot>
     </table>
   </div>
 
   ${depenses.length > 0 ? `
   <div class="details-section">
-    <table>
-      <thead><tr><th>Date</th><th>Libellé</th><th>Montant</th></tr></thead>
-      <tbody>
-        ${depenses.map(d => `
-          <tr><td>${formatDate(d.date)}</td><td>${(d.description || d.libelle || '-').replace(/^\[CGM PAYÉ\]\s*/, '')}</td><td>${formatMontant(d.montant)}</td></tr>
-        `).join('')}
-      </tbody>
-      <tfoot>
-        <tr class="total-row"><td colspan="2">TOTAL DÉPENSES</td><td>${formatMontant(getTotalDepenses(depenses))}</td></tr>
-      </tfoot>
-    </table>
+  <table>
+    <thead><tr><th>Date</th><th>Libellé</th><th>Client</th><th>Montant</th></tr></thead>
+    <tbody>
+        ${depenses.map(d => {
+            // Récupérer le nom du bénéficiaire selon la logique précédente
+            const rawText = (d.description || d.libelle || '').toUpperCase();
+            const isCgmDepense = rawText.includes('[CGM]') || rawText.includes('HONORAIRES REÇU');
+            
+            // Déterminer le nom du client/beneficiaire
+            let clientName = '';
+            if (isCgmDepense) {
+                clientName = d.nom_beneficiaire || d.beneficiaire || d.client || '';
+            } else {
+                clientName = d.beneficiaire || d.client || '';
+            }
+            
+            // Alternative: utiliser client_nom et client_prenom si disponibles
+            const clientFullName = (d.client_nom || '') + ' ' + (d.client_prenom || '').trim();
+            if (clientFullName.trim()) {
+                clientName = clientFullName;
+            }
+            
+            return `
+                <tr>
+                    <td>${formatDate(d.date)}</td>
+                    <td>${(d.description || d.libelle || '-').replace(/^\[CGM\]\s*/, '').replace(/CGM\s*/, '')}</td>
+                    <td>${clientName || '-'}</td>
+                    <td>${formatMontant(d.montant)}</td>
+                </tr>
+            `;
+        }).join('')}
+    </tbody>
+    <tfoot>
+        <tr class="total-row"><td colspan="3">TOTAL DÉPENSES</td><td>${formatMontant(getTotalDepenses(depenses))}</td></tr>
+    </tfoot>
+</table>
   </div>
   ` : ''}
 

@@ -12,6 +12,7 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
     const [clientName, setClientName] = useState('');
     const [soldeReporte, setSoldeReporte] = useState(null);
 
+    
     useEffect(() => {
         if (show) {
             setHonoraires([]);
@@ -478,9 +479,9 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
         const date = new Date(dateStr);
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
         return `${day}/${month}/${year}`;
     };
 
@@ -624,9 +625,9 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
         } else {
             // Par défaut, afficher la date actuelle
             const now = new Date();
-            const year = now.getUTCFullYear();
-            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(now.getUTCDate()).padStart(2, '0');
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
             return `${day}/${month}/${year}`;
         }
     };
@@ -792,198 +793,209 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                                     </div>
                                 ) : (
                                     <>
-                                        {/* Tableau des Honoraires et Avance de Déclaration */}
-                                        {(honoraires.length > 0 || beneficiaireData) && (
-                                            <div className="mb-4">
-                                                <h5 className="mb-3">
-                                                    <i className="fas fa-chart-line me-2"></i>
-                                                    Détail des Honoraires Reçus
-                                                </h5>
-                                                <div className="table-responsive">
-                                                    <table className="table table-striped table-hover">
-                                                        <thead className="table-dark">
-                                                            <tr>
-                                                                <th>Date</th>
-                                                                <th>Libellé</th>
-                                                                <th>Montant</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {beneficiaireData ? (
-                                                                <tr>
-                                                                    <td colSpan="2" className="text-center">
-                                                                        <strong>Total des honoraires reçus</strong>
-                                                                    </td>
-                                                                    <td className="text-success fw-bold">
-                                                                        {formatMontant(beneficiaireData.honoraires.total)}
-                                                                    </td>
-                                                                </tr>
-                                                            ) : (
-                                                                honoraires.map((honoraire, index) => (
-                                                                    <tr key={index}>
-                                                                        <td>{formatDateForDisplay(honoraire.date)}</td>
-                                                                        <td>
-                                                                            <strong>{honoraire.libelle || '-'}</strong>
-                                                                        </td>
-                                                                        <td className="text-success fw-bold">
-                                                                            {formatMontant(window.currentEtatType === 'bureau' ? honoraire.montant : honoraire.avance)}
-                                                                        </td>
-                                                                    </tr>
-                                                                ))
-                                                            )}
-                                                        </tbody>
-                                                        <tfoot className="table-dark">
-                                                            <tr>
-                                                                <th colSpan="2" className="text-end">
-                                                                    <strong>TOTAL HONORAIRES REÇUS :</strong>
-                                                                </th>
-                                                                <th className="text-success">
-                                                                    <strong>{formatMontant(getTotalMontant())}</strong>
-                                                                </th>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        )}
+                                      {/* Tableau des Honoraires et Avance de Déclaration */}
+{(honoraires.length > 0 || beneficiaireData) && (
+    <div className="mb-4">
+        <h6 className="mb-2 text-dark fw-bold">Détail des Honoraires Reçus</h6>
+        <div className="table-responsive">
+            <table className="table table-sm table-bordered">
+                <thead className="bg-light">
+                    <tr>
+                        <th className="border p-2">Date</th>
+                        <th className="border p-2">Libellé</th>
+                        <th className="border p-2">Client</th>
+                        <th className="border p-2">Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {beneficiaireData ? (
+                        <tr>
+                            <td colSpan="3" className="border p-2 text-center">
+                                <strong>Total des honoraires reçus</strong>
+                            </td>
+                            <td className="border p-2 text-end fw-bold text-success">
+                                {formatMontant(beneficiaireData.honoraires.total)}
+                            </td>
+                        </tr>
+                    ) : (
+                        honoraires.map((honoraire, index) => (
+                            <tr key={index}>
+                                <td className="border p-2">{formatDateForDisplay(honoraire.date)}</td>
+                                <td className="border p-2">
+                                    {honoraire.libelle || '-'}
+                                </td>
+                                <td className="border p-2 text-muted">
+                                    {honoraire.client_nom || ''} {honoraire.client_prenom || ''}
+                                </td>
+                                <td className="border p-2 text-end fw-bold text-success">
+                                    {formatMontant(window.currentEtatType === 'bureau' ? honoraire.montant : honoraire.avance)}
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+                <tfoot className="bg-light">
+                    <tr>
+                        <th colSpan="3" className="border p-2 text-end">
+                            TOTAL HONORAIRES REÇUS :
+                        </th>
+                        <th className="border p-2 text-end text-success">
+                            {formatMontant(getTotalMontant())}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+)}
 
-                                        {/* Tableau des Dépenses du Client */}
-                                        {(depenses.length > 0 || beneficiaireData) && (
-                                            <div className="mb-4">
-                                                <h5 className="mb-3">
-                                                    <i className="fas fa-credit-card me-2"></i>
-                                                    Détail des Dépenses
-                                                </h5>
-                                                <div className="table-responsive">
-                                                    <table className="table table-striped table-hover">
-                                                        <thead className="table-dark">
-                                                            <tr>
-                                                                <th>Date</th>
-                                                                <th>Libellé</th>
-                                                                <th>Montant</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {beneficiaireData ? (
-                                                                beneficiaireData.depenses.details.map((depense, index) => (
-                                                                    <tr key={index}>
-                                                                        <td>{formatDateForDisplay(depense.date)}</td>
-                                                                        <td>
-                                                                            <strong>{depense.description || depense.libelle || '-'}</strong>
-                                                                        </td>
-                                                                        <td className="text-primary fw-bold">
-                                                                            {formatMontant(depense.montant)}
-                                                                        </td>
-                                                                    </tr>
-                                                                ))
-                                                            ) : (
-                                                                depenses
-                                                                    .filter(depense => {
-                                                                        // Pour l'état CGM (bureau), ne montrer que les dépenses avec préfixe [CGM]
-                                                                        const etatType = window.currentEtatType || type;
-                                                                        if (etatType === 'bureau') {
-                                                                            const description = depense.description || depense.libelle || '';
-                                                                            return description.includes('[CGM]');
-                                                                        }
-                                                                        // Pour l'état client, ne montrer que les dépenses sans préfixe [CGM]
-                                                                        else if (etatType === 'client') {
-                                                                            const description = depense.description || depense.libelle || '';
-                                                                            return !description.includes('[CGM]');
-                                                                        }
-                                                                        // Par défaut, montrer toutes les dépenses
-                                                                        return true;
-                                                                    })
-                                                                    .map((depense, index) => (
-                                                                        <tr key={index}>
-                                                                            <td>{formatDateForDisplay(depense.date)}</td>
-                                                                            <td>
-                                                                                <strong>{depense.description || depense.libelle || '-'}</strong>
-                                                                            </td>
-                                                                            <td className="text-primary fw-bold">
-                                                                                {formatMontant(depense.montant)}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))
-                                                            )}
-                                                        </tbody>
-                                                        <tfoot className="table-dark">
-                                                            <tr>
-                                                                <th colSpan="2" className="text-end">
-                                                                    <strong>TOTAL DÉPENSES :</strong>
-                                                                </th>
-                                                                <th className="text-primary">
-                                                                    <strong>{formatMontant(getTotalDepenses())}</strong>
-                                                                </th>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        )}
+{/* Tableau des Dépenses */}
+{(depenses.length > 0 || beneficiaireData) && (
+    <div className="mb-4">
+        <h6 className="mb-2 text-dark fw-bold">Détail des Dépenses</h6>
+        <div className="table-responsive">
+            <table className="table table-sm table-bordered">
+                <thead className="bg-light">
+                    <tr>
+                        <th className="border p-2">Date</th>
+                        <th className="border p-2">Libellé</th>
+                        <th className="border p-2">Client</th>
+                        <th className="border p-2">Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {beneficiaireData ? (
+                        beneficiaireData.depenses.details.map((depense, index) => {
+                            const rawText = (depense.description || depense.libelle || '').toUpperCase();
+                            const isCgmDepense = rawText.includes('[CGM]') || rawText.includes('HONORAIRES REÇU');
+                            
+                            const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
+                            
+                            let libelleText = depense.description || depense.libelle || '-';
+                            libelleText = libelleText.replace(/^\[CGM\]\s*/, '');
+                            
+                            return (
+                                <tr key={index}>
+                                    <td className="border p-2">{formatDateForDisplay(depense.date)}</td>
+                                    <td className="border p-2">{libelleText}</td>
+                                    <td className="border p-2">{clientName || '-'}</td>
+                                    <td className="border p-2 text-end fw-bold text-primary">
+                                        {formatMontant(depense.montant)}
+                                    </td>
+                                </tr>
+                            );
+                        })
+                    ) : (
+                        depenses
+                            .filter(depense => {
+                                const etatType = window.currentEtatType || type;
+                                if (etatType === 'bureau') {
+                                    const description = depense.description || depense.libelle || '';
+                                    return description.includes('[CGM]');
+                                } else if (etatType === 'client') {
+                                    const description = depense.description || depense.libelle || '';
+                                    return !description.includes('[CGM]');
+                                }
+                                return true;
+                            })
+                            .map((depense, index) => {
+                                const rawText = (depense.description || depense.libelle || '').toUpperCase();
+                                const isCgmDepense = rawText.includes('[CGM]') || rawText.includes('HONORAIRES REÇU');
+                                
+                                const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
+                                
+                                let libelleText = depense.description || depense.libelle || '-';
+                                libelleText = libelleText.replace(/^\[CGM\]\s*/, '');
+                                
+                                return (
+                                    <tr key={index}>
+                                        <td className="border p-2">{formatDateForDisplay(depense.date)}</td>
+                                        <td className="border p-2">{libelleText}</td>
+                                        <td className="border p-2">{clientName || '-'}</td>
+                                        <td className="border p-2 text-end fw-bold text-primary">
+                                            {formatMontant(depense.montant)}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                    )}
+                </tbody>
+                <tfoot className="bg-light">
+                    <tr>
+                        <th colSpan="3" className="border p-2 text-end">
+                            TOTAL DÉPENSES :
+                        </th>
+                        <th className="border p-2 text-end text-primary">
+                            {formatMontant(getTotalDepenses())}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+)}
 
-                                        {/* Tableau de Synthèse */}
-                                        <div className="mt-4">
-                                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                                <h5 className="mb-0">
-                                                    <i className="fas fa-calculator me-2"></i>
-                                                    Synthèse
-                                                </h5>
-                                                <button
-                                                    className="btn btn-outline-primary btn-sm"
-                                                    onClick={handlePrint}
-                                                    title="Imprimer la synthèse "
-                                                >
-                                                    <i className="fas fa-print me-2"></i>
-                                                    Imprimer
-                                                </button>
-                                            </div>
-                                            <div className="table-responsive">
-                                                <table className="table table-bordered table-striped">
-                                                    <thead className="table-primary">
-                                                        <tr>
-                                                            <th className="text-center">Date</th>
-                                                            <th className="text-center">Total Honoraires Reçus</th>
-                                                            <th className="text-center">Total Dépenses</th>
-                                                            <th className="text-center">Reste CGM</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr className="fw-bold">
-                                                            <td className="text-center">{getCurrentDate()}</td>
-                                                            <td className="text-success text-center">
-                                                                {formatMontant(getTotalMontant())}
-                                                            </td>
-                                                            <td className="text-primary text-center">
-                                                                {formatMontant(getTotalDepenses())}
-                                                            </td>
-                                                            <td className={`text-center fw-bold ${getResteCgm() >= 0 ? 'text-success' : 'text-danger'}`}>
-                                                                {formatMontant(getResteCgm())}
-                                                            </td>
-                                                        </tr>
-                                                        {soldeReporte && soldeReporte.soldeReporte !== 0 && (
-                                                            <>
-                                                                <tr>
-                                                                    <td colSpan="3" className="text-end fw-bold">
-                                                                        + Solde reporté ({soldeReporte.anneePrecedente})
-                                                                    </td>
-                                                                    <td className={`text-center ${soldeReporte.soldeReporte >= 0 ? 'text-success' : 'text-danger'}`}>
-                                                                        {formatMontant(soldeReporte.soldeReporte)}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr className="table-warning">
-                                                                    <td colSpan="3" className="text-end fw-bold">
-                                                                        = Reste CGM Final
-                                                                    </td>
-                                                                    <td className={`text-center fw-bold ${getResteCgmFinal() >= 0 ? 'text-success' : 'text-danger'}`}>
-                                                                        {formatMontant(getResteCgmFinal())}
-                                                                    </td>
-                                                                </tr>
-                                                            </>
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+{/* Tableau de Synthèse */}
+<div className="mt-4">
+    <div className="d-flex justify-content-between align-items-center mb-2">
+        <h6 className="mb-0 text-dark fw-bold">Synthèse</h6>
+        <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={handlePrint}
+            title="Imprimer la synthèse"
+        >
+            <i className="fas fa-print me-1"></i>
+            Imprimer
+        </button>
+    </div>
+    <div className="table-responsive">
+        <table className="table table-sm table-bordered">
+            <thead className="bg-light">
+                <tr>
+                    <th className="border p-2 text-center">Date</th>
+                    <th className="border p-2 text-center">Total Honoraires Reçus</th>
+                    <th className="border p-2 text-center">Total Dépenses</th>
+                    <th className="border p-2 text-center">Reste CGM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr className="fw-bold">
+                    <td className="border p-2 text-center">{getCurrentDate()}</td>
+                    <td className="border p-2 text-center text-success">
+                        {formatMontant(getTotalMontant())}
+                    </td>
+                    <td className="border p-2 text-center text-primary">
+                        {formatMontant(getTotalDepenses())}
+                    </td>
+                    <td className={`border p-2 text-center fw-bold ${getResteCgm() >= 0 ? 'text-success' : 'text-danger'}`}>
+                        {formatMontant(getResteCgm())}
+                    </td>
+                </tr>
+                {soldeReporte && soldeReporte.soldeReporte !== 0 && (
+                    <>
+                        <tr>
+                            <td colSpan="3" className="border p-2 text-end fw-bold">
+                                + Solde reporté ({soldeReporte.anneePrecedente})
+                            </td>
+                            <td className={`border p-2 text-center ${soldeReporte.soldeReporte >= 0 ? 'text-success' : 'text-danger'}`}>
+                                {formatMontant(soldeReporte.soldeReporte)}
+                            </td>
+                        </tr>
+                        <tr className="bg-warning bg-opacity-10">
+                            <td colSpan="3" className="border p-2 text-end fw-bold">
+                                = Reste CGM Final
+                            </td>
+                            <td className={`border p-2 text-center fw-bold ${getResteCgmFinal() >= 0 ? 'text-success' : 'text-danger'}`}>
+                                {formatMontant(getResteCgmFinal())}
+                            </td>
+                        </tr>
+                    </>
+                )}
+            </tbody>
+        </table>
+    </div>
+</div>
+
                                     </>
                                 )}
                             </>

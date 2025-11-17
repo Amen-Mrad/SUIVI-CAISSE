@@ -766,10 +766,7 @@ export default function UserManagementPage() {
                 <h2 className="users-table-title">
                     <i className="fas fa-users me-2"></i>
                     Liste des utilisateurs
-                    <span className="users-count-badge">
-                        {users.length} utilisateur{users.length > 1 ? 's' : ''}
-                        {!showAllUsers && ' (employés seulement)'}
-                    </span>
+                  
                 </h2>
 
                 {error && (

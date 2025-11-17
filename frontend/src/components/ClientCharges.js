@@ -1458,17 +1458,16 @@ export default function ClientCharges() {
         {/* Informations du client - Résumé compact */}
         <div className="client-info-card">
           <div className="client-info-summary">
+               <div className="client-info-text">
+              <i className="fas fa-phone"></i>
+              <span>{client.username}</span>
+            </div>
             <div className="client-info-text">
               <i className="fas fa-user"></i>
               <span>{client?.nom} {client?.prenom}</span>
-              {client?.username && (
-                <span className="client-username">(@{client.username})</span>
-              )}
+              
             </div>
-            <div className="client-info-text">
-              <i className="fas fa-phone"></i>
-              <span>{client?.telephone || '-'}</span>
-            </div>
+
             <div className="client-info-year">
               <label>
                 <i className="fas fa-calendar"></i>
@@ -1884,20 +1883,20 @@ export default function ClientCharges() {
                         }}
                       >
                         <td>
-                          {charge.date ? (() => {
-                            const date = new Date(charge.date);
-                            const year = date.getUTCFullYear();
-                            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-                            const day = String(date.getUTCDate()).padStart(2, '0');
-                            return `${day}/${month}/${year}`;
-                          })() : (() => {
-                            const date = new Date(charge.date_creation);
-                            const year = date.getUTCFullYear();
-                            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-                            const day = String(date.getUTCDate()).padStart(2, '0');
-                            return `${day}/${month}/${year}`;
-                          })()}
-                        </td>
+  {charge.date ? (() => {
+    const date = new Date(charge.date);
+    const year = date.getFullYear(); // getFullYear() au lieu de getUTCFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0'); // getDate() au lieu de getUTCDate()
+    return `${day}/${month}/${year}`;
+  })() : (() => {
+    const date = new Date(charge.date_creation);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  })()}
+</td>
                         <td>{charge.libelle || '-'}</td>
                         <td>{renderMontantGreen(charge.montant)}</td>
                         <td>{renderAvanceRed(charge.avance || 0)}</td>
@@ -1945,12 +1944,11 @@ export default function ClientCharges() {
                                         title={isRetraitDone ? "Retrait déjà créé" : "Créer un retrait dans la caisse CGM"}
                                         style={{ minWidth: '30px', fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                                       >
-                                        -
+                                        Payé par CGM
                                       </button>
                                     </div>
                                   );
                                 }
-
                                 // Pour les autres charges: afficher les 3 boutons (sauf pour carte bancaire)
                                 if (isCarte) {
                                   return null;
@@ -2014,7 +2012,6 @@ export default function ClientCharges() {
                                   <i className="fas fa-trash" style={{ fontSize: '0.7rem' }}></i>
                                   Supprimer
                                 </button>
-
                                 {/* Bouton Reçu - Pour tous les honoraires reçus */}
                                 {(() => {
                                   const chargeLibelle = (charge.libelle || '').toUpperCase();

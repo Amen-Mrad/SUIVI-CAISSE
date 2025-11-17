@@ -899,8 +899,8 @@ export default function AddDepensePage() {
                                             {depenses.map((depense, index) => {
                                                 const rawText = (depense.libelle || depense.description || '').toUpperCase();
                                                 const isCgmDepense = rawText.includes('[CGM]') || rawText.includes('HONORAIRES REÇU');
-                                                const clientName = isCgmDepense ? 'CGM' : (depense.beneficiaire || depense.client || 'CGM');
-                                                let libelleText = depense.libelle || depense.description || '-';
+                                               const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
+                                                let libelleText = depense.libellse || depense.description || '-';
                                                 libelleText = libelleText.replace(/^\[CGM\]\s*/, '');
                                                 const originalClientName = depense.beneficiaire || depense.client;
                                                 if (originalClientName && !isCgmDepense) {

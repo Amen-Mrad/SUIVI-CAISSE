@@ -20,7 +20,6 @@ export default function LoginPage() {
     }));
   };
 
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -96,18 +95,18 @@ export default function LoginPage() {
         }
         
         .login-container {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border-radius: 25px;
-          box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(255, 255, 255, 0.2);
-          padding: 3rem;
-          max-width: 450px;
-          width: 90%;
-          position: relative;
-          z-index: 10;
-        }
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 25px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 3rem;
+  max-width: 550px; /* Augmenté de 500px à 550px */
+  width: 90%;
+  position: relative;
+  z-index: 10;
+}
         
         .login-header {
           text-align: center;
@@ -115,79 +114,78 @@ export default function LoginPage() {
         }
         
         .login-logo {
-          width: 100px;
-          height: 100px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 1.5rem;
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-          position: relative;
-          padding: 15px;
-        }
-        
+  width: 220px; /* Augmenté de 180px à 220px */
+  height: 150px; /* Augmenté de 120px à 150px */
+  margin: 0 auto 2rem; /* Augmenté la marge basse */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 15px; /* Augmenté le padding */
+}
+
         .login-logo::before {
           content: '';
           position: absolute;
-          top: -5px;
-          left: -5px;
-          right: -5px;
-          bottom: -5px;
+          top: -10px;
+          left: -10px;
+          right: -10px;
+          bottom: -10px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 50%;
+          border-radius: 20px;
           z-index: -1;
-          opacity: 0.3;
-          filter: blur(10px);
+          opacity: 0.1;
+          filter: blur(15px);
         }
         
         .login-logo img {
           width: 100%;
           height: 100%;
           object-fit: contain;
-          /* filter: brightness(0) invert(1); */
           transition: all 0.3s ease;
           display: block;
           opacity: 1;
+          border-radius: 10px;
         }
         
         .login-logo:hover img {
           transform: scale(1.05);
+          filter: drop-shadow(0 10px 20px rgba(102, 126, 234, 0.3));
         }
         
         .login-title {
-          background: linear-gradient(45deg, #667eea, #764ba2);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-size: 2.5rem;
-          font-weight: 800;
-          margin-bottom: 0.5rem;
-          text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 3rem; /* Augmenté de 2.8rem à 3rem */
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
         
         .login-subtitle {
-          color: #6c757d;
-          font-size: 1.1rem;
-          font-weight: 500;
-        }
+  color: #6c757d;
+  font-size: 1.3rem; /* Augmenté de 1.2rem à 1.3rem */
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
         
         .modern-input-group {
           position: relative;
           margin-bottom: 1.5rem;
         }
         
-        .modern-input {
-          width: 100%;
-          padding: 15px 20px 15px 50px;
-          border: 2px solid #e9ecef;
-          border-radius: 15px;
-          font-size: 1rem;
-          transition: all 0.3s ease;
-          background: #f8f9fa;
-          color: #495057;
-        }
+       .modern-input {
+  width: 100%;
+  padding: 18px 20px 18px 55px; /* Augmenté le padding vertical */
+  border: 2px solid #e9ecef;
+  border-radius: 15px;
+  font-size: 1.1rem; /* Augmenté la taille de police */
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+  color: #495057;
+}
         
         .modern-input:focus {
           outline: none;
@@ -197,30 +195,29 @@ export default function LoginPage() {
           transform: translateY(-2px);
         }
         
-        .modern-input-icon {
-          position: absolute;
-          left: 18px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #6c757d;
-          font-size: 1.1rem;
-          z-index: 2;
-        }
-        
+      .modern-input-icon {
+  position: absolute;
+  left: 20px; /* Légèrement décalé */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 1.3rem; /* Augmenté la taille des icônes */
+  z-index: 2;
+}
         .modern-login-btn {
-          width: 100%;
-          background: linear-gradient(45deg, #667eea, #764ba2);
-          border: none;
-          color: white;
-          border-radius: 15px;
-          padding: 15px 30px;
-          font-weight: 600;
-          font-size: 1.1rem;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-          margin-top: 1rem;
-        }
+  width: 100%;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border: none;
+  color: white;
+  border-radius: 15px;
+  padding: 18px 30px; /* Augmenté le padding vertical */
+  font-weight: 600;
+  font-size: 1.2rem; /* Augmenté la taille de police */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  margin-top: 1rem;
+}
         
         .modern-login-btn::before {
           content: '';
@@ -280,22 +277,40 @@ export default function LoginPage() {
           color: #6c757d;
           font-size: 0.9rem;
         }
-        
         @media (max-width: 768px) {
-          .login-container {
-            padding: 2rem;
-            margin: 1rem;
-          }
-          
-          .login-title {
-            font-size: 2rem;
-          }
-          
-          .login-logo {
-            width: 80px;
-            height: 80px;
-            padding: 12px;
-          }
+  .login-container {
+    padding: 2.5rem; /* Augmenté le padding */
+    margin: 1rem;
+    max-width: 450px; /* Augmenté de 400px à 450px */
+  }
+  
+  .login-title {
+    font-size: 2.5rem; /* Augmenté de 2.2rem à 2.5rem */
+  }.login-logo {
+    width: 180px; /* Augmenté de 150px à 180px */
+    height: 120px; /* Augmenté de 100px à 120px */
+    padding: 12px; /* Augmenté le padding */
+  }
+  
+  .login-subtitle {
+    font-size: 1.2rem; /* Augmenté de 1.1rem à 1.2rem */
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 2rem; /* Augmenté de 1.5rem à 2rem */
+  }
+  
+  .login-title {
+    font-size: 2.2rem; /* Augmenté de 2rem à 2.2rem */
+  }
+  
+  .login-logo {
+    width: 150px; /* Augmenté de 120px à 150px */
+    height: 100px; /* Augmenté de 80px à 100px */
+  }
+}
         }
       `}</style>
 

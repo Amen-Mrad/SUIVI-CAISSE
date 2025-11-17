@@ -18,7 +18,7 @@ export default function AddClientPage() {
                     padding: 2rem 0;
                 }
                 
-                .add-client-header {
+                    .add-client-header {
                     background: white;
                     border-radius: 20px;
                     padding: 2rem;

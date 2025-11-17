@@ -336,7 +336,7 @@ router.delete('/:id', async (req, res) => {
       await conn.execute('DELETE FROM depenses_client WHERE client_id = ?', [id]);
       await conn.execute('DELETE FROM charges_mensuelles WHERE client_id = ?', [id]);
       await conn.execute('DELETE FROM print_history WHERE client_id = ?', [id]);
-
+  
       // Enfin supprimer le client
       await conn.execute('DELETE FROM client WHERE id = ?', [id]);
 
@@ -347,7 +347,6 @@ router.delete('/:id', async (req, res) => {
     } finally {
       conn.release();
     }
-
     res.json({
       success: true,
       message: 'Client et données associées supprimés avec succès'
