@@ -379,7 +379,8 @@ export default function DepensesBureauByMonthPage() {
 
                                             const originalClientName = depense.beneficiaire || depense.client;
                                             let baseLibelle = depense.libelle || depense.description || '-';
-                                            baseLibelle = baseLibelle.replace(/^\[CGM\]\s*/, '');
+                                            // Remplacer [CGM] par [PAYÉ PAR CGM] dans l'affichage
+                                            baseLibelle = baseLibelle.replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
                                             const libelleText = originalClientName ? `${baseLibelle} (${originalClientName})` : baseLibelle;
 
                                             const isHonoraire = rawText.includes('HONORAIRES REÇU') || rawText.includes('HONORAIRES RECU') || rawText.includes('AVANCE DE DECLARATION');

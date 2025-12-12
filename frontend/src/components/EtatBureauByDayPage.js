@@ -31,6 +31,9 @@ export default function EtatBureauByDayPage() {
                 return;
             }
         }
+        // Réinitialiser les variables globales pour l'état bureau
+        window.currentEtatClientId = null;
+        window.currentEtatType = 'bureau';
         setShowModal(true);
     };
 

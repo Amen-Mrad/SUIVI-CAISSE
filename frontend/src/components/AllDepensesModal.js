@@ -606,8 +606,8 @@ export default function AllDepensesModal({ show, onClose, actionMode = 'view', t
                                                     let libelleText;
                                                     let baseLibelle = depense.libelle || depense.description || '-';
 
-                                                    // Retirer le préfixe [CGM] s'il existe
-                                                    baseLibelle = baseLibelle.replace(/^\[CGM\]\s*/, '');
+                                                    // Remplacer [CGM] par [PAYÉ PAR CGM] dans l'affichage
+                                                    baseLibelle = baseLibelle.replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
 
                                                     // Pour toutes les dépenses, ajouter le nom du bénéficiaire entre parenthèses
                                                     if (originalClientName) {

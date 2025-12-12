@@ -5,7 +5,7 @@ import EtatCgmModal from './EtatCgmModal';
 export default function EtatClientByYearPage() {
     const { id } = useParams(); // ID du client
     const navigate = useNavigate();
-    
+
     // UI de filtrage (comme Honoraires/Dépenses)
     const [tab, setTab] = useState('annee'); // 'jour' | 'mois' | 'annee'
     const [jourMode, setJourMode] = useState('date'); // 'date' | 'periode'
@@ -15,7 +15,7 @@ export default function EtatClientByYearPage() {
     const now = new Date();
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
     const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-    
+
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [client, setClient] = useState(null);
@@ -65,7 +65,7 @@ export default function EtatClientByYearPage() {
         // Définir les variables globales pour le client spécifique
         window.currentEtatClientId = id;
         window.currentEtatType = 'client';
-        
+
         // Stocker les paramètres pour le modal
         window.currentEtatFilterType = finalFilterType;
         window.currentEtatDate = finalDate;
@@ -73,7 +73,7 @@ export default function EtatClientByYearPage() {
         window.currentEtatDateFin = finalDateFin;
         window.currentEtatMois = finalMois;
         window.currentEtatAnnee = finalAnnee;
-        
+
         setShowModal(true);
     };
 
@@ -160,65 +160,66 @@ export default function EtatClientByYearPage() {
                     )}
 
                     {/* Interface de filtrage */}
-                    <div className="action-container" style={{maxWidth: '900px', margin: '0 auto 1rem auto', background: 'white', borderRadius: '16px', padding: '1rem', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1px solid #edf0f3', textAlign: 'center'}}>
-                        <div style={{fontWeight:800, fontSize:'1.25rem', color:'#334155', marginBottom:'0.5rem'}}>Filtrer l'état client</div>
-                        <div className="tabs" style={{display: 'inline-flex', background: '#f1f5f9', borderRadius: '999px', padding: '4px', margin: '0 auto 0.75rem auto'}}>
-                            <button className={`tab-btn ${tab==='jour'?'active':''}`} style={{border: 'none', background: tab==='jour' ? '#0d6efd' : 'transparent', color: tab==='jour' ? '#fff' : '#334155', padding: '6px 12px', borderRadius: '999px', fontWeight: 700, cursor: 'pointer'}} onClick={()=>setTab('jour')}>Jour</button>
-                            <button className={`tab-btn ${tab==='mois'?'active':''}`} style={{border: 'none', background: tab==='mois' ? '#0d6efd' : 'transparent', color: tab==='mois' ? '#fff' : '#334155', padding: '6px 12px', borderRadius: '999px', fontWeight: 700, cursor: 'pointer'}} onClick={()=>setTab('mois')}>Mois</button>
-                            <button className={`tab-btn ${tab==='annee'?'active':''}`} style={{border: 'none', background: tab==='annee' ? '#0d6efd' : 'transparent', color: tab==='annee' ? '#fff' : '#334155', padding: '6px 12px', borderRadius: '999px', fontWeight: 700, cursor: 'pointer'}} onClick={()=>setTab('annee')}>Année</button>
+                    <div className="action-container" style={{ maxWidth: '900px', margin: '0 auto 1rem auto', background: 'white', borderRadius: '16px', padding: '1rem', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1px solid #edf0f3', textAlign: 'center' }}>
+                        <div style={{ fontWeight: 800, fontSize: '1.25rem', color: '#334155', marginBottom: '0.5rem' }}>Filtrer l'état client</div>
+                        <div className="tabs" style={{ display: 'inline-flex', background: '#f1f5f9', borderRadius: '999px', padding: '4px', margin: '0 auto 0.75rem auto' }}>
+                            <button className={`tab-btn ${tab === 'jour' ? 'active' : ''}`} style={{ border: 'none', background: tab === 'jour' ? '#0d6efd' : 'transparent', color: tab === 'jour' ? '#fff' : '#334155', padding: '6px 12px', borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }} onClick={() => setTab('jour')}>Jour</button>
+                            <button className={`tab-btn ${tab === 'mois' ? 'active' : ''}`} style={{ border: 'none', background: tab === 'mois' ? '#0d6efd' : 'transparent', color: tab === 'mois' ? '#fff' : '#334155', padding: '6px 12px', borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }} onClick={() => setTab('mois')}>Mois</button>
+                            <button className={`tab-btn ${tab === 'annee' ? 'active' : ''}`} style={{ border: 'none', background: tab === 'annee' ? '#0d6efd' : 'transparent', color: tab === 'annee' ? '#fff' : '#334155', padding: '6px 12px', borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }} onClick={() => setTab('annee')}>Année</button>
                         </div>
                         {tab === 'jour' && (
-                            <div className="filter-row" style={{display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop:'0.25rem'}}>
+                            <div className="filter-row" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.25rem' }}>
                                 <div className="form-check me-2">
-                                    <input className="form-check-input" type="radio" id="jourDate" name="jourMode" checked={jourMode==='date'} onChange={()=>setJourMode('date')} />
+                                    <input className="form-check-input" type="radio" id="jourDate" name="jourMode" checked={jourMode === 'date'} onChange={() => setJourMode('date')} />
                                     <label className="form-check-label" htmlFor="jourDate">Par date</label>
                                 </div>
                                 <div className="form-check me-2">
-                                    <input className="form-check-input" type="radio" id="jourPeriode" name="jourMode" checked={jourMode==='periode'} onChange={()=>setJourMode('periode')} />
+                                    <input className="form-check-input" type="radio" id="jourPeriode" name="jourMode" checked={jourMode === 'periode'} onChange={() => setJourMode('periode')} />
                                     <label className="form-check-label" htmlFor="jourPeriode">Par période</label>
                                 </div>
-                                {jourMode==='date' ? (
+                                {jourMode === 'date' ? (
                                     <>
-                                        <label className="mb-0 ms-2 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>Date</label>
-                                        <input type="date" value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}} />
+                                        <label className="mb-0 ms-2 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>Date</label>
+                                        <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }} />
                                     </>
                                 ) : (
                                     <>
-                                        <label className="mb-0 ms-2 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>De</label>
-                                        <input type="date" value={dateDebut} onChange={(e)=>setDateDebut(e.target.value)} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}} />
-                                        <label className="mb-0 ms-2 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>à</label>
-                                        <input type="date" value={dateFin} onChange={(e)=>setDateFin(e.target.value)} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}} />
+                                        <label className="mb-0 ms-2 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>De</label>
+                                        <input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }} />
+                                        <label className="mb-0 ms-2 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>à</label>
+                                        <input type="date" value={dateFin} onChange={(e) => setDateFin(e.target.value)} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }} />
                                     </>
+
                                 )}
-                                <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer'}}>Rechercher</button>
+                                <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{ background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer' }}>Rechercher</button>
                             </div>
                         )}
                         {tab === 'mois' && (
-                            <div className="filter-row" style={{display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop:'0.25rem'}}>
-                                <label className="mb-0 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>Mois</label>
-                                <select value={selectedMonth} onChange={(e)=>setSelectedMonth(parseInt(e.target.value))} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}}>
-                                    {Array.from({length:12},(_,i)=>i+1).map(m=> (
-                                        <option key={m} value={m}>{String(m).padStart(2,'0')}</option>
+                            <div className="filter-row" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                                <label className="mb-0 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>Mois</label>
+                                <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value))} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }}>
+                                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                                        <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
                                     ))}
                                 </select>
-                                <label className="mb-0 ms-2 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>Année</label>
-                                <select value={selectedYear} onChange={(e)=>setSelectedYear(parseInt(e.target.value))} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}}>
-                                    {Array.from({length:11},(_,i)=> now.getFullYear()-5+i).map(y=> (
+                                <label className="mb-0 ms-2 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>Année</label>
+                                <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }}>
+                                    {Array.from({ length: 11 }, (_, i) => now.getFullYear() - 5 + i).map(y => (
                                         <option key={y} value={y}>{y}</option>
                                     ))}
                                 </select>
-                                <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer'}}>Rechercher</button>
+                                <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{ background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer' }}>Rechercher</button>
                             </div>
                         )}
                         {tab === 'annee' && (
-                            <div className="filter-row" style={{display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop:'0.25rem'}}>
-                                <label className="mb-0 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>Année</label>
-                                <select value={selectedYear} onChange={(e)=>setSelectedYear(parseInt(e.target.value))} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}}>
-                                    {Array.from({length:11},(_,i)=> now.getFullYear()-5+i).map(y=> (
+                            <div className="filter-row" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                                <label className="mb-0 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>Année</label>
+                                <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }}>
+                                    {Array.from({ length: 11 }, (_, i) => now.getFullYear() - 5 + i).map(y => (
                                         <option key={y} value={y}>{y}</option>
                                     ))}
                                 </select>
-                                <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer'}}>Rechercher</button>
+                                <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{ background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer' }}>Rechercher</button>
                             </div>
                         )}
                     </div>
@@ -232,9 +233,9 @@ export default function EtatClientByYearPage() {
                     type="client"
                     filterType={
                         tab === 'jour' && jourMode === 'date' ? 'jour' :
-                        tab === 'jour' && jourMode === 'periode' ? 'periode' :
-                        tab === 'mois' ? 'mois' :
-                        tab === 'annee' ? 'annee' : null
+                            tab === 'jour' && jourMode === 'periode' ? 'periode' :
+                                tab === 'mois' ? 'mois' :
+                                    tab === 'annee' ? 'annee' : null
                     }
                     date={tab === 'jour' && jourMode === 'date' ? selectedDate : null}
                     dateDebut={tab === 'jour' && jourMode === 'periode' ? dateDebut : null}
@@ -242,7 +243,7 @@ export default function EtatClientByYearPage() {
                     mois={tab === 'mois' ? selectedMonth : null}
                     annee={
                         tab === 'mois' ? selectedYear :
-                        tab === 'annee' ? selectedYear : null
+                            tab === 'annee' ? selectedYear : null
                     }
                 />
             )}

@@ -291,208 +291,252 @@ export default function AllDepensesClientPage() {
     return (
         <>
             <style jsx global>{`
-                body, html { height: auto !important; overflow-x: hidden; overflow-y: auto; }
-                .all-depenses-client-page { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 0.75rem 0; }
+                body, html { 
+                    background: rgb(187, 187, 187) !important;
+                    height: auto !important; 
+                    overflow-x: hidden; 
+                    overflow-y: auto; 
+                }
+                
+                .all-depenses-client-page { 
+                    background: transparent; 
+                    min-height: 100vh; 
+                    padding: 0.5rem 0; 
+                }
                 
                 .depenses-header { display: none; }
                 
-                .depenses-title {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    margin-bottom: 1rem;
-                    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                }
-                
-                .depenses-subtitle {
-                    color: #6c757d;
-                    font-size: 1.1rem;
-                    font-weight: 500;
-                    margin-bottom: 2rem;
-                }
-                
-                .modern-back-btn {
-                    background: linear-gradient(45deg, #6c757d, #495057);
-                    border: none;
-                    color: white;
-                    border-radius: 12px;
-                    padding: 10px 20px;
-                    font-weight: 600;
-                    transition: all 0.3s ease;
-                    text-decoration: none;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                
-                .modern-back-btn:hover {
-                    background: linear-gradient(45deg, #5a6268, #343a40);
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-                    color: white;
-                    text-decoration: none;
-                }
-                
                 .client-info-card {
-                    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-                    border-radius: 15px;
-                    padding: 1.5rem;
-                    margin-bottom: 2rem;
-                    border-left: 4px solid #2196f3;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    padding: 0.75rem 1rem;
+                    margin-bottom: 1rem;
+                    border: 1px solid #d5dbe3;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                    max-width: 1100px;
+                    margin-left: auto;
+                    margin-right: auto;
                 }
                 
                 .client-info-title {
-                    color: #1976d2;
+                    color: #0b5796;
                     font-weight: 700;
-                    font-size: 1.2rem;
-                    margin-bottom: 1rem;
+                    font-size: 1rem;
+                    margin-bottom: 0.5rem;
                 }
                 
                 .client-info-text {
-                    color: #424242;
-                    font-size: 1rem;
-                    margin-bottom: 0.5rem;
+                    color: #2c3e50;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.3rem;
                 }
                 
-                .filter-bar { background: white; border: 1px solid #edf0f3; border-radius: 10px; padding: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; gap: 0.5rem; align-items: center; justify-content: center; max-width: 900px; margin: 0 auto 0.75rem auto; flex-wrap: wrap; }
-                .filter-bar label { margin-bottom: 0; color: #2c3e50; font-weight: 600; }
-                .filter-bar input[type="date"], .filter-bar select { border: 1px solid #e2e6ea; border-radius: 8px; padding: 6px 10px; }
-                .tabs { display: inline-flex; background: #f1f5f9; border-radius: 999px; padding: 4px; }
-                .tab-btn { border: none; background: transparent; padding: 6px 12px; border-radius: 999px; font-weight: 700; color: #334155; }
-                .tab-btn.active { background: #0d6efd; color: white; box-shadow: 0 4px 10px rgba(13,110,253,.3); }
-                .btn-search { background: #0d6efd; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-weight: 600; }
-
-                .inline-results-card { background: white; border-radius: 12px; border: 1px solid #edf0f3; box-shadow: 0 6px 16px rgba(0,0,0,0.06); padding: 1rem; }
-                .inline-table { width: 100%; border-collapse: collapse; }
-                .inline-table thead th { background: #FFB5FC; color: #2c3e50; border-bottom: 2px solid #e6ebf1; font-weight: 700; }
-                .inline-table th, .inline-table td { padding: 0.6rem; border-bottom: 1px solid #eef2f7; text-align: left; }
-                .inline-table tbody tr:hover { background: #fafcff; }
-                .inline-table tfoot td { background: #FFB5FC; color: #2c3e50; font-weight: 700; border-top: 2px solid #e6ebf1; }
+                .action-container { 
+                    background: #ffffff; 
+                    border-radius: 12px; 
+                    padding: 1rem 1.5rem; 
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+                    border: 1px solid #d5dbe3; 
+                    max-width: 1100px; 
+                    margin: 0 auto 1rem auto; 
+                }
                 
-                .date-selector-title {
-                    color: #2c3e50;
+                .filter-title {
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+                    color: #ffffff;
+                    padding: 0.85rem 1rem;
+                    border-radius: 8px;
                     font-weight: 700;
-                    font-size: 1.4rem;
-                    margin-bottom: 1.5rem;
+                    font-size: 1.1rem;
+                    margin-bottom: 1rem;
                     text-align: center;
                 }
                 
-                .date-input-group {
-                    display: flex;
-                    gap: 1rem;
-                    align-items: center;
-                    margin-bottom: 2rem;
+                .filter-row { 
+                    display: flex; 
+                    gap: 0.75rem; 
+                    align-items: center; 
+                    justify-content: center; 
+                    flex-wrap: wrap; 
                 }
                 
-                .date-label {
-                    min-width: 100px;
+                .filter-row label { 
+                    margin-bottom: 0; 
+                    color: #2c3e50; 
                     font-weight: 600;
-                    color: #2c3e50;
+                    font-size: 0.9rem;
                 }
                 
-                .date-input {
-                    flex: 1;
-                    padding: 12px 16px;
-                    border: 2px solid #e0e0e0;
-                    border-radius: 10px;
-                    font-size: 1rem;
-                    transition: all 0.3s ease;
-                    background: white;
+                .filter-row input[type="date"], 
+                .filter-row select { 
+                    border: 1px solid #d5dbe3; 
+                    border-radius: 8px; 
+                    padding: 6px 12px; 
+                    font-size: 0.9rem;
+                    background: #ffffff;
+                    transition: all 0.2s ease;
                 }
                 
-                .date-input:focus {
+                .filter-row input[type="date"]:focus, 
+                .filter-row select:focus {
                     outline: none;
-                    border-color: #2196f3;
-                    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+                    border-color: #0b5796;
+                    box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
                 }
                 
-                .show-btn {
-                    background: linear-gradient(45deg, #2196f3, #1976d2);
-                    border: none;
-                    color: white;
-                    border-radius: 15px;
-                    padding: 15px 30px;
+                .tabs { 
+                    display: inline-flex; 
+                    background: #f4f6f8; 
+                    border-radius: 8px; 
+                    padding: 4px; 
+                    margin: 0 auto 1rem auto; 
+                    border: 1px solid #d5dbe3;
+                }
+                
+                .tab-btn { 
+                    border: none; 
+                    background: transparent; 
+                    padding: 8px 16px; 
+                    border-radius: 6px; 
+                    font-weight: 600; 
+                    color: #495057;
+                    font-size: 0.9rem;
+                    transition: all 0.2s ease;
+                }
+                
+                .tab-btn:hover {
+                    background: rgba(11, 87, 150, 0.1);
+                }
+                
+                .tab-btn.active { 
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%); 
+                    color: #fff; 
+                    box-shadow: 0 4px 10px rgba(11, 87, 150, 0.25); 
+                }
+                
+                .btn-search { 
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%); 
+                    color: #fff; 
+                    border: none; 
+                    border-radius: 8px; 
+                    padding: 8px 20px; 
                     font-weight: 600;
-                    font-size: 1.1rem;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    position: relative;
-                    overflow: hidden;
-                    min-width: 200px;
-                    width: 100%;
+                    font-size: 0.9rem;
+                    transition: all 0.2s ease;
+                    cursor: pointer;
                 }
                 
-                .show-btn::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-                    transition: left 0.6s;
+                .btn-search:hover {
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 14px rgba(46, 125, 50, 0.3);
                 }
                 
-                .show-btn:hover::before {
-                    left: 100%;
-                }
-                
-                .show-btn:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4);
-                }
-                
-                .show-btn:disabled {
+                .btn-search:disabled {
                     opacity: 0.7;
                     transform: none;
+                    cursor: not-allowed;
+                }
+
+                .inline-results-card { 
+                    background: #ffffff; 
+                    border-radius: 12px; 
+                    border: 1px solid #d5dbe3; 
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+                    padding: 0.75rem; 
+                    max-width: 1100px;
+                    margin: 0 auto;
                 }
                 
-                .info-cards {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 1.5rem;
-                    margin-bottom: 2rem;
+                .inline-table { 
+                    width: 100%; 
+                    border-collapse: separate;
+                    border-spacing: 0;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    border-radius: 8px;
+                    overflow: hidden;
                 }
                 
-                .info-card {
-                    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                    border-radius: 15px;
-                    padding: 1.5rem;
-                    border-left: 4px solid #2196f3;
-                    transition: all 0.3s ease;
+                .inline-table thead th { 
+                    background: #0b5796; 
+                    color: #ffffff; 
+                    border-bottom: 1px solid rgba(213, 219, 227, 0.8);
+                    border-right: 1px solid rgba(213, 219, 227, 0.8);
+                    font-weight: 750;
+                    padding: 0.7rem;
+                    text-align: left;
+                    font-size: 0.88rem;
                 }
                 
-                .info-card:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+                .inline-table thead th:last-child {
+                    border-right: none;
                 }
                 
-                .info-card-icon {
-                    font-size: 2rem;
-                    color: #2196f3;
-                    margin-bottom: 1rem;
+                .inline-table th, .inline-table td { 
+                    padding: 0.6rem 0.7rem; 
+                    border-bottom: 1px solid rgba(227, 231, 238, 0.8);
+                    border-right: 1px solid rgba(227, 231, 238, 0.8);
+                    text-align: left; 
+                    font-size: 0.85rem;
                 }
                 
-                .info-card-title {
-                    color: #2c3e50;
-                    font-weight: 700;
-                    font-size: 1.1rem;
-                    margin-bottom: 0.5rem;
+                .inline-table td:last-child {
+                    border-right: none;
                 }
                 
-                .info-card-text {
-                    color: #6c757d;
+                .inline-table tbody tr {
+                    background-color: transparent;
+                }
+                
+                .inline-table tbody tr:hover { 
+                    background: #f0f6ff; 
+                }
+                
+                .inline-table tbody tr:last-child td {
+                    border-bottom: none;
+                }
+                
+                .inline-table tfoot td { 
+                    background: #0b5796; 
+                    color: #ffffff; 
+                    font-weight: 700; 
+                    border-top: 1px solid rgba(213, 219, 227, 0.8);
+                    border-right: 1px solid rgba(213, 219, 227, 0.8);
+                    padding: 0.7rem;
+                    font-size: 0.88rem;
+                }
+                
+                .inline-table tfoot td:last-child {
+                    border-right: none;
+                }
+                
+                .form-check {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                
+                .form-check-input {
+                    width: 18px;
+                    height: 18px;
+                    margin: 0;
+                    cursor: pointer;
+                    accent-color: #0b5796;
+                }
+                
+                .form-check-label {
+                    margin: 0;
+                    cursor: pointer;
                     font-size: 0.9rem;
-                    line-height: 1.5;
+                    color: #2c3e50;
+                    font-weight: 500;
                 }
                 
                 .modern-spinner {
                     width: 20px;
                     height: 20px;
                     border: 2px solid #f3f3f3;
-                    border-top: 2px solid #2196f3;
+                    border-top: 2px solid #2E7D32;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                     display: inline-block;
@@ -504,29 +548,24 @@ export default function AllDepensesClientPage() {
                     100% { transform: rotate(360deg); }
                 }
                 
+                .alert-danger {
+                    background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 8px;
+                    padding: 0.75rem 1rem;
+                    max-width: 1100px;
+                    margin: 0 auto 1rem auto;
+                }
+                
                 @media (max-width: 768px) {
-                    .depenses-title {
-                        font-size: 2rem;
+                    .action-container {
+                        margin: 0.5rem;
+                        padding: 1rem;
                     }
                     
-                    .date-input-group {
-                        flex-direction: column;
-                        align-items: stretch;
-                    }
-                    
-                    .date-label {
-                        min-width: auto;
-                        text-align: center;
-                    }
-                    
-                    .depenses-header,
-                    .date-selector-container {
-                        margin: 1rem;
-                        padding: 1.5rem;
-                    }
-                    
-                    .info-cards {
-                        grid-template-columns: 1fr;
+                    .inline-results-card {
+                        margin: 0 0.5rem;
                     }
                 }
             `}</style>
@@ -573,19 +612,19 @@ export default function AllDepensesClientPage() {
 
                     {/* Informations - supprimées */}
 
-                    {/* Sélecteur d'action */}
-                    {/* Barre de filtres (identique à Dépenses CGM) */}
-                    <div className="filter-bar">
+                    {/* Filtres */}
+                    <div className="action-container text-center">
+                        <div className="filter-title">Filtrer les dépenses client</div>
                         <div className="tabs">
                             <button className={`tab-btn ${filterType === 'jour' ? 'active' : ''}`} onClick={() => setFilterType('jour')}>Jour</button>
                             <button className={`tab-btn ${filterType === 'mois' ? 'active' : ''}`} onClick={() => setFilterType('mois')}>Mois</button>
                             <button className={`tab-btn ${filterType === 'annee' ? 'active' : ''}`} onClick={() => setFilterType('annee')}>Année</button>
                         </div>
-
+                        
                         {/* Sélecteur de client (uniquement si pas d'ID client dans l'URL) */}
                         {!id && (
-                            <>
-                                <label style={{marginBottom: 0, fontWeight: 600, color: '#2c3e50'}}>
+                            <div className="filter-row" style={{ marginTop: '0.25rem', marginBottom: '0.5rem' }}>
+                                <label>
                                     <i className="fas fa-user me-2"></i>Client:
                                 </label>
                                 <select
@@ -595,12 +634,6 @@ export default function AllDepensesClientPage() {
                                         const client = allClients.find(c => c.id === parseInt(clientId));
                                         setSelectedClient(client || null);
                                     }}
-                                    style={{
-                                        border: '1px solid #e2e6ea',
-                                        borderRadius: '8px',
-                                        padding: '6px 10px',
-                                        minWidth: '200px'
-                                    }}
                                 >
                                     <option value="">Tous les clients</option>
                                     {allClients.map(client => (
@@ -609,11 +642,11 @@ export default function AllDepensesClientPage() {
                                         </option>
                                     ))}
                                 </select>
-                            </>
+                            </div>
                         )}
 
                         {filterType === 'jour' && (
-                            <>
+                            <div className="filter-row" style={{ marginTop: '0.25rem' }}>
                                 <div className="form-check me-2">
                                     <input className="form-check-input" type="radio" id="jDate" name="jmode" checked={jourMode === 'date'} onChange={() => setJourMode('date')} />
                                     <label className="form-check-label" htmlFor="jDate">Par date</label>
@@ -623,35 +656,51 @@ export default function AllDepensesClientPage() {
                                     <label className="form-check-label" htmlFor="jPeriode">Par période</label>
                                 </div>
                                 {jourMode === 'date' ? (
-                                    <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                                    <>
+                                        <label className="mb-0 ms-2 me-1">Date</label>
+                                        <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                                    </>
                                 ) : (
                                     <>
+                                        <label className="mb-0 ms-2 me-1">De</label>
                                         <input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} />
-                                        <label className="mb-0 ms-1 me-1">à</label>
+                                        <label className="mb-0 ms-2 me-1">à</label>
                                         <input type="date" value={dateFin} onChange={(e) => setDateFin(e.target.value)} />
                                     </>
                                 )}
-                            </>
+                                <button className="btn-search" onClick={handleSearchByFilters} disabled={loading}>Rechercher</button>
+                            </div>
                         )}
 
                         {filterType === 'mois' && (
-                            <>
+                            <div className="filter-row" style={{ marginTop: '0.25rem' }}>
+                                <label className="mb-0 me-1">Mois</label>
                                 <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value))}>
-                                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (<option key={m} value={m}>{String(m).padStart(2, '0')}</option>))}
+                                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                                        <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                                    ))}
                                 </select>
+                                <label className="mb-0 ms-2 me-1">Année</label>
                                 <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
-                                    {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (<option key={y} value={y}>{y}</option>))}
+                                    {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                    ))}
                                 </select>
-                            </>
+                                <button className="btn-search" onClick={handleSearchByFilters} disabled={loading}>Rechercher</button>
+                            </div>
                         )}
 
                         {filterType === 'annee' && (
-                            <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
-                                {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (<option key={y} value={y}>{y}</option>))}
-                            </select>
+                            <div className="filter-row" style={{ marginTop: '0.25rem' }}>
+                                <label className="mb-0 me-1">Année</label>
+                                <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
+                                    {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                    ))}
+                                </select>
+                                <button className="btn-search" onClick={handleSearchByFilters} disabled={loading}>Rechercher</button>
+                            </div>
                         )}
-
-                        <button className="btn-search" onClick={handleSearchByFilters}>Rechercher</button>
                     </div>
 
                     {showTable ? (
@@ -674,7 +723,8 @@ export default function AllDepensesClientPage() {
                                                 {filteredDepenses.map((depense, index) => {
                                                     const clientName = depense.client || depense.beneficiaire;
                                                     let libelleText = depense.libelle || depense.description || '-';
-                                                    libelleText = libelleText.replace(/^\[CGM PAYÉ\]\s*/, '');
+                                                    // Remplacer [CGM] ou [CGM PAYÉ] par [PAYÉ PAR CGM] dans l'affichage
+                                                    libelleText = libelleText.replace(/^\[CGM PAYÉ\]\s*/, '[PAYÉ PAR CGM] ').replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
                                                     const rawText = (depense.libelle || depense.description || '').toUpperCase();
                                                     const isHonoraire = rawText.includes('HONORAIRES REÇU') || rawText.includes('HONORAIRES RECU') || rawText.includes('AVANCE DE DECLARATION');
                                                     const montantStyle = { color: isHonoraire ? '#198754' : '#dc3545', fontWeight: 700 };

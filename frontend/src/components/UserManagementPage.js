@@ -172,88 +172,28 @@ export default function UserManagementPage() {
                     overflow-x: hidden; 
                     overflow-y: auto; 
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: rgb(187, 187, 187);
                 }
                 
                 .user-management-page { 
-                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    background: transparent;
                     min-height: 100vh; 
-                    padding: 1.25rem 0;
+                    padding: 0.5rem 0;
                     position: relative;
-                    overflow: hidden;
                 }
                 
                 .user-management-page::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-                    opacity: 0.3;
-                    pointer-events: none;
-                }
-                
-                .users-header { 
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(20px);
-                    border-radius: 25px; 
-                    padding: 3rem; 
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
-                    margin-bottom: 2rem;
-                    position: relative;
-                    overflow: hidden;
-                    animation: slideInDown 0.8s ease-out;
-                }
-                
-                .users-header::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 4px;
-                    background: linear-gradient(45deg, #667eea, #764ba2);
-                }
-                
-                @keyframes slideInDown {
-                    from { transform: translateY(-50px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
-                
-                .users-title { 
-                    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
-                    -webkit-background-clip: text; 
-                    -webkit-text-fill-color: transparent; 
-                    background-clip: text; 
-                    font-size: 3rem; 
-                    font-weight: 900; 
-                    margin-bottom: 1rem; 
-                    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                    animation: titleGlow 2s ease-in-out infinite alternate;
-                    position: relative;
-                }
-                
-                @keyframes titleGlow {
-                    from { filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.3)); }
-                    to { filter: drop-shadow(0 0 20px rgba(118, 75, 162, 0.5)); }
-                }
-                
-                .users-subtitle { 
-                    color: #6c757d; 
-                    font-size: 1.2rem; 
-                    font-weight: 500; 
-                    margin-bottom: 2rem;
-                    opacity: 0.9;
+                    display: none;
                 }
                 
                 .users-actions {
                     background: #ffffff;
-                    border-radius: 14px;
+                    border-radius: 8px;
                     padding: 0.75rem 1rem;
-                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-                    border: 1px solid #edf0f3;
-                    margin: 0 0 1rem 0;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    margin: 0 auto 0.75rem auto;
+                    max-width: 1100px;
                     animation: slideInUp 0.5s ease-out 0.1s both;
                 }
                 
@@ -263,55 +203,51 @@ export default function UserManagementPage() {
                 }
                 
                 .action-btn {
-                    border-radius: 12px;
-                    padding: 12px 20px;
+                    border-radius: 6px;
+                    padding: 8px 16px;
                     font-weight: 600;
-                    transition: all 0.3s ease;
+                    font-size: 0.85rem;
+                    transition: all 0.2s ease;
                     border: none;
                     position: relative;
                     overflow: hidden;
                     margin: 0 5px;
                 }
                 
-                .action-btn::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                    transition: left 0.5s;
-                }
-                
-                .action-btn:hover::before {
-                    left: 100%;
-                }
-                
                 .action-btn-primary {
-                    background: linear-gradient(45deg, #007bff, #0056b3);
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                     color: white;
                 }
                 
                 .action-btn-success {
-                    background: linear-gradient(45deg, #28a745, #20c997);
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%);
                     color: white;
                 }
                 
                 .action-btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                }
+                
+                .action-btn-primary:hover {
+                    background: linear-gradient(135deg, #0a4a7d 0%, #0b5ed6 100%);
+                }
+                
+                .action-btn-success:hover {
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
                 }
                 
                 .users-table-container {
                     background: #ffffff;
-                    border-radius: 14px;
-                    padding: 1rem;
-                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-                    border: 1px solid #edf0f3;
+                    border-radius: 8px;
+                    padding: 0.75rem 1rem;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
                     animation: slideInUp 0.5s ease-out 0.2s both;
                     position: relative;
                     overflow: hidden;
+                    max-width: 1100px;
+                    margin: 0 auto;
                 }
                 
                 .users-table-container::before {
@@ -320,51 +256,53 @@ export default function UserManagementPage() {
                     top: 0;
                     left: 0;
                     right: 0;
-                    height: 4px;
-                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    height: 3px;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                 }
                 
                 .users-table-title {
-                    color: #2c3e50;
-                    font-weight: 800;
-                    font-size: 1.25rem;
-                    margin: 0 0 1rem 0;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+                    color: #ffffff;
+                    font-weight: 700;
+                    font-size: 1rem;
+                    padding: 0.5rem 0.75rem;
+                    margin: -0.75rem -1rem 0.75rem -1rem;
                     text-align: center;
+                    border-radius: 8px 8px 0 0;
                 }
                 
                 .users-count-badge {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    background: rgba(255, 255, 255, 0.2);
                     color: white;
-                    padding: 8px 16px;
-                    border-radius: 20px;
+                    padding: 4px 12px;
+                    border-radius: 12px;
                     font-weight: 600;
-                    font-size: 0.9rem;
+                    font-size: 0.8rem;
                     margin-left: 10px;
-                    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
                 }
                 
                 .modern-table {
                     width: 100%;
                     border-collapse: separate;
                     border-spacing: 0;
-                    border-radius: 15px;
+                    border-radius: 6px;
                     overflow: hidden;
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                    border: 1px solid #000;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
                 }
                 
                 .modern-table thead {
-                    background: #FFB5FC;
+                    background: #0b5796;
                 }
                 
                 .modern-table th {
-                    color: #2c3e50;
+                    color: #ffffff;
                     font-weight: 700;
-                    padding: 1rem;
+                    padding: 0.75rem 0.5rem;
                     text-align: center;
-                    border-bottom: 2px solid #000;
-                    border-right: 1px solid #000;
-                    font-size: 0.9rem;
+                    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+                    border-right: 1px solid rgba(255, 255, 255, 0.2);
+                    font-size: 0.85rem;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
                 }
@@ -374,26 +312,26 @@ export default function UserManagementPage() {
                 }
                 
                 .modern-table tbody tr {
-                    background: rgba(255, 255, 255, 0.9);
-                    transition: all 0.3s ease;
+                    background: transparent;
+                    transition: all 0.2s ease;
                 }
                 
                 .modern-table tbody tr:nth-child(even) {
-                    background: rgba(248, 249, 250, 0.9);
+                    background: rgba(248, 249, 250, 0.5);
                 }
                 
                 .modern-table tbody tr:hover {
-                    background: rgba(33, 150, 243, 0.05);
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    background: rgba(11, 87, 150, 0.05);
                 }
                 
                 .modern-table td {
-                    padding: 1rem;
+                    padding: 0.75rem 0.5rem;
                     text-align: center;
                     vertical-align: middle;
-                    border-bottom: 1px solid #000;
-                    border-right: 1px solid #000;
+                    border-bottom: 1px solid rgba(213, 219, 227, 0.5);
+                    border-right: 1px solid rgba(213, 219, 227, 0.5);
                     font-weight: 500;
+                    font-size: 0.85rem;
                 }
                 
                 .modern-table td:last-child {
@@ -405,201 +343,191 @@ export default function UserManagementPage() {
                 }
                 
                 .role-badge {
-                    padding: 6px 12px;
-                    border-radius: 20px;
+                    padding: 4px 10px;
+                    border-radius: 12px;
                     font-weight: 600;
-                    font-size: 0.8rem;
+                    font-size: 0.75rem;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
+                    display: inline-block;
                 }
                 
                 .role-admin {
-                    background: linear-gradient(45deg, #dc3545, #c82333);
+                    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
                     color: white;
                 }
                 
                 .role-caissier {
-                    background: linear-gradient(45deg, #007bff, #0056b3);
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                     color: white;
                 }
                 
                 .action-buttons {
                     display: flex;
-                    gap: 8px;
+                    gap: 6px;
                     justify-content: center;
                     align-items: center;
                 }
                 
                 .btn-modify {
-                    background: linear-gradient(45deg, #ff9800, #f57c00);
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%);
                     border: none;
                     color: white;
-                    padding: 8px 16px;
-                    border-radius: 10px;
+                    padding: 5px 12px;
+                    border-radius: 4px;
                     font-weight: 600;
-                    font-size: 0.8rem;
-                    transition: all 0.3s ease;
-                    min-width: 80px;
-                    position: relative;
-                    overflow: hidden;
+                    font-size: 0.75rem;
+                    transition: all 0.2s ease;
+                    min-width: 70px;
+                    cursor: pointer;
                 }
                 
-                .btn-modify::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                    transition: left 0.5s;
-                }
-                
-                .btn-modify:hover::before {
-                    left: 100%;
+                .btn-modify:hover {
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
                 }
                 
                 .btn-delete {
-                    background: linear-gradient(45deg, #f44336, #d32f2f);
+                    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
                     border: none;
                     color: white;
-                    padding: 8px 16px;
-                    border-radius: 10px;
+                    padding: 5px 12px;
+                    border-radius: 4px;
                     font-weight: 600;
-                    font-size: 0.8rem;
-                    transition: all 0.3s ease;
-                    min-width: 80px;
-                    position: relative;
-                    overflow: hidden;
+                    font-size: 0.75rem;
+                    transition: all 0.2s ease;
+                    min-width: 70px;
+                    cursor: pointer;
                 }
                 
-                .btn-delete::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                    transition: left 0.5s;
-                }
-                
-                .btn-delete:hover::before {
-                    left: 100%;
-                }
-                
-                .btn-modify:hover, .btn-delete:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                .btn-delete:hover {
+                    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
                 }
                 
                 .modern-alert {
-                    border-radius: 12px;
+                    border-radius: 6px;
                     border: none;
-                    padding: 1rem 1.5rem;
-                    margin-bottom: 1.5rem;
+                    padding: 0.75rem 1rem;
+                    margin-bottom: 1rem;
                     font-weight: 500;
+                    font-size: 0.85rem;
                 }
                 
                 .modern-alert-success {
-                    background: linear-gradient(45deg, #d4edda, #c3e6cb);
+                    background: #d4edda;
                     color: #155724;
-                    border-left: 4px solid #28a745;
+                    border-left: 3px solid #28a745;
                 }
                 
                 .modern-alert-danger {
-                    background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+                    background: #f8d7da;
                     color: #721c24;
-                    border-left: 4px solid #dc3545;
+                    border-left: 3px solid #dc3545;
                 }
                 
                 .modern-alert-info {
-                    background: linear-gradient(45deg, #d1ecf1, #bee5eb);
+                    background: #d1ecf1;
                     color: #0c5460;
-                    border-left: 4px solid #17a2b8;
+                    border-left: 3px solid #17a2b8;
                 }
                 
                 .form-container {
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(20px);
-                    border-radius: 20px;
-                    padding: 2rem;
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    margin-bottom: 2rem;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    padding: 1rem 1.25rem;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    margin-bottom: 1rem;
                     animation: slideInUp 0.8s ease-out 0.6s both;
                 }
                 
                 .form-title {
-                    color: #2c3e50;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+                    color: #ffffff;
                     font-weight: 700;
-                    font-size: 1.3rem;
-                    margin-bottom: 1.5rem;
+                    font-size: 0.95rem;
+                    padding: 0.5rem 0.75rem;
+                    margin: -1rem -1.25rem 1rem -1.25rem;
                     text-align: center;
+                    border-radius: 8px 8px 0 0;
                 }
                 
                 .form-group {
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 1rem;
                 }
                 
                 .form-label {
-                    color: #495057;
+                    color: #2c3e50;
                     font-weight: 600;
-                    margin-bottom: 0.5rem;
+                    font-size: 0.8rem;
+                    margin-bottom: 0.3rem;
                     display: block;
                 }
                 
                 .form-input {
                     width: 100%;
-                    border: 2px solid #e9ecef;
-                    border-radius: 12px;
-                    padding: 12px 16px;
-                    font-size: 1rem;
-                    transition: all 0.3s ease;
-                    background: #f8f9fa;
+                    border: 1px solid #d5dbe3;
+                    border-radius: 4px;
+                    padding: 6px 10px;
+                    font-size: 0.85rem;
+                    transition: all 0.2s ease;
+                    background: #ffffff;
                 }
                 
                 .form-input:focus {
                     outline: none;
-                    border-color: #667eea;
-                    background: white;
-                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                    border-color: #0b5796;
+                    box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
                 }
                 
                 .form-buttons {
                     display: flex;
-                    gap: 1rem;
+                    gap: 0.5rem;
                     justify-content: center;
-                    margin-top: 2rem;
+                    margin-top: 1rem;
                 }
                 
                 .form-btn {
-                    border-radius: 12px;
-                    padding: 12px 24px;
+                    border-radius: 4px;
+                    padding: 6px 16px;
                     font-weight: 600;
-                    transition: all 0.3s ease;
+                    font-size: 0.8rem;
+                    transition: all 0.2s ease;
                     border: none;
-                    min-width: 120px;
+                    min-width: 100px;
+                    cursor: pointer;
                 }
                 
                 .form-btn-secondary {
-                    background: linear-gradient(45deg, #6c757d, #495057);
+                    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
                     color: white;
                 }
                 
                 .form-btn-primary {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%);
                     color: white;
                 }
                 
                 .form-btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                }
+                
+                .form-btn-primary:hover {
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                }
+                
+                .form-btn-secondary:hover {
+                    background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
                 }
                 
                 .form-btn:disabled {
                     opacity: 0.7;
                     transform: none;
+                    cursor: not-allowed;
                 }
                 
                 .empty-state {
@@ -628,7 +556,7 @@ export default function UserManagementPage() {
                     width: 20px;
                     height: 20px;
                     border: 2px solid #f3f3f3;
-                    border-top: 2px solid #667eea;
+                    border-top: 2px solid #0b5796;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                     display: inline-block;
@@ -640,8 +568,31 @@ export default function UserManagementPage() {
                     100% { transform: rotate(360deg); }
                 }
                 
+                .empty-state {
+                    text-align: center;
+                    padding: 3rem 2rem;
+                    color: #6c757d;
+                }
+                
+                .empty-state i {
+                    font-size: 3rem;
+                    margin-bottom: 1rem;
+                    opacity: 0.5;
+                }
+                
+                .empty-state h5 {
+                    margin-bottom: 1rem;
+                    font-weight: 600;
+                }
+                
+                .empty-state p {
+                    margin-bottom: 2rem;
+                    opacity: 0.8;
+                }
+                
                 @media (max-width: 992px) {
-                    .users-table-container {
+                    .users-table-container,
+                    .users-actions {
                         margin: 0.5rem;
                         padding: 0.75rem;
                     }
@@ -665,20 +616,15 @@ export default function UserManagementPage() {
                 }
                 
                 @media (max-width: 768px) {
-                    .users-title {
-                        font-size: 2rem;
-                    }
-                    
                     .form-buttons {
                         flex-direction: column;
                     }
                     
-                    .users-header,
                     .users-actions,
                     .users-table-container,
                     .form-container {
                         margin: 0.5rem;
-                        padding: 1rem;
+                        padding: 0.75rem;
                     }
                     
                     .action-buttons {
@@ -706,16 +652,11 @@ export default function UserManagementPage() {
                 }
                 
                 @media (max-width: 480px) {
-                    .users-title {
-                        font-size: 1.5rem;
-                    }
-                    
-                    .users-header,
                     .users-actions,
                     .users-table-container,
                     .form-container {
                         margin: 0.25rem;
-                        padding: 0.75rem;
+                        padding: 0.5rem;
                     }
                     
                     .modern-table {

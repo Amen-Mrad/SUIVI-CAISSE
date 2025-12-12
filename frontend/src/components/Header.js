@@ -466,48 +466,65 @@ export default function Header() {
     <>
       <style jsx>{`
         .modern-header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+          background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           position: relative;
           z-index: 1000;
-          padding: 0.75rem 1rem;
+          padding: 0.5rem 0.75rem;
         }
         
         .modern-brand {
-          color: white;
-          font-weight: 600;
-          font-size: 1.4rem;
-          transition: opacity 0.2s ease;
+          color: #ffffff;
+          font-weight: 500;
+          font-size: 1rem;
+          transition: all 0.2s ease;
         }
         
         .modern-brand:hover {
-          opacity: 0.9;
+          color: #f0f0f0;
+          transform: translateY(-1px);
         }
         
         .modern-header .modern-btn,
         .modern-nav-container .modern-btn {
-          background: rgba(255, 255, 255, 0.15);
-          border: 1px solid rgba(255, 255, 255, 0.25);
-          color: white;
-          border-radius: 6px;
-          padding: 8px 14px;
+          background: transparent;
+          border: none;
+          color: #ffffff;
+          border-radius: 4px;
+          padding: 4px 10px;
           font-weight: 500;
-          font-size: 0.875rem;
+          font-size: 0.8rem;
+          letter-spacing: 0.02px;
+          text-transform: none;
+          position: relative;
           transition: all 0.2s ease;
           white-space: nowrap;
         }
         
+        .modern-header .modern-btn::after,
+        .modern-nav-container .modern-btn::after {
+          display: none;
+        }
+
         .modern-header .modern-btn:hover,
         .modern-nav-container .modern-btn:hover {
-          background: rgba(255, 255, 255, 0.25);
-          border-color: rgba(255, 255, 255, 0.4);
-          color: white;
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.15);
+          transform: translateY(-1px);
         }
-        
+
         .modern-header .modern-btn:active,
         .modern-nav-container .modern-btn:active {
-          transform: scale(0.98);
+          transform: translateY(0);
+          background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modern-header .modern-btn.active,
+        .modern-nav-container .modern-btn.active {
+          background: rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+          font-weight: 500;
         }
         
         
@@ -517,10 +534,10 @@ export default function Header() {
         }
         
         .modern-dropdown {
-          background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-          border: 2px solid rgba(102, 126, 234, 0.2);
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
           border-radius: 12px;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
           margin-top: 0;
           opacity: 0;
           transform: translateY(-10px) scale(0.95);
@@ -546,12 +563,12 @@ export default function Header() {
         }
         
         .modern-dropdown-item {
-          color: #2d3748;
-          padding: 12px 20px;
-          border-radius: 8px;
-          margin: 4px 8px;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          font-weight: 600;
+          color: #2c3e50;
+          padding: 10px 16px;
+          border-radius: 6px;
+          margin: 3px 6px;
+          transition: all 0.2s ease;
+          font-weight: 500;
           font-size: 0.9rem;
           display: flex;
           align-items: center;
@@ -596,20 +613,19 @@ export default function Header() {
           position: absolute;
           left: 0;
           top: 0;
-          width: 4px;
+          width: 3px;
           height: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
           transform: scaleY(0);
           transform-origin: bottom;
-          transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.2s ease;
         }
         
         .modern-dropdown-item:hover {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          transform: translateX(4px);
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-          border-color: rgba(102, 126, 234, 0.3);
+          background: rgba(11, 87, 150, 0.08);
+          color: #0b5796;
+          transform: translateX(2px);
+          border-color: rgba(11, 87, 150, 0.15);
         }
         
         .modern-dropdown-item:hover::before {
@@ -632,17 +648,17 @@ export default function Header() {
         }
         
         .modern-dropdown-header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          font-weight: 700;
-          border-radius: 8px;
-          margin: 8px 8px 4px 8px;
-          padding: 10px 16px;
+          background: #f8f9fa;
+          color: #495057;
+          font-weight: 500;
+          border-radius: 6px;
+          margin: 6px 6px 3px 6px;
+          padding: 8px 14px;
           font-size: 0.85rem;
           text-transform: uppercase;
           letter-spacing: 1px;
-          box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          text-shadow: none;
           opacity: 0;
           transform: translateY(-5px);
           transition: all 0.3s ease;
@@ -660,32 +676,36 @@ export default function Header() {
         
         .modern-dropdown .dropdown-divider {
           margin: 8px 12px;
-          border-top: 2px solid rgba(102, 126, 234, 0.15);
+          border-top: 2px solid rgba(209, 107, 255, 0.15);
           opacity: 0.5;
         }
         
         .modern-user-info {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 8px 16px;
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          padding: 6px 14px;
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #ffffff;
+          font-weight: 500;
+          font-size: 0.9rem;
         }
         
         .modern-user-text {
-          color: white;
+          color: #ffffff;
           font-weight: 500;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+          font-size: 0.9rem;
         }
         
         .modern-nav-container {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 2px;
           flex-wrap: wrap;
           position: relative;
           z-index: 1001;
-          justify-content: center;
+          justify-content: flex-start;
+          width: auto;
         }
         
         .modern-nav-container .dropdown {
@@ -735,7 +755,11 @@ export default function Header() {
           .modern-nav-container {
             gap: 4px;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: flex-start;
+            position: relative;
+            left: auto;
+            transform: none;
+            width: auto;
           }
           
           .modern-header .modern-btn,
@@ -767,6 +791,9 @@ export default function Header() {
           }
           
           .modern-nav-container {
+            position: relative;
+            left: auto;
+            transform: none;
             width: 100%;
             order: 3;
             margin-top: 0.5rem;
@@ -819,9 +846,14 @@ export default function Header() {
           }
           
           .modern-btn i {
-            margin-right: 3px !important;
-            font-size: 0.7rem;
+            margin-right: 4px !important;
+            font-size: 0.75rem;
           }
+          
+        .modern-btn i {
+          font-size: 0.75rem;
+          margin-right: 4px;
+        }
           
           .modern-brand {
             font-size: 0.9rem;
@@ -931,9 +963,9 @@ export default function Header() {
       `}</style>
 
       <nav className="navbar modern-header">
-        <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
+        <div className="container-fluid d-flex align-items-center flex-wrap" style={{ position: 'relative' }}>
           {/* Zone gauche: Logo */}
-          <div className="d-flex align-items-center flex-shrink-0">
+          <div className="d-flex align-items-center flex-shrink-0" style={{ width: 'auto' }}>
             <span
               className="navbar-brand modern-brand mb-0 h1 me-2 me-md-4"
               style={{ cursor: 'pointer' }}
@@ -946,7 +978,7 @@ export default function Header() {
 
           {/* Bouton retour vers tableau des charges - visible uniquement dans les détails client */}
           {isClientDetailPage && (
-            <div className="d-flex justify-content-center flex-grow-1">
+            <div className="d-flex align-items-center flex-shrink-0" style={{ marginLeft: '0.5rem' }}>
               <button
                 className="btn modern-btn modern-btn-success"
                 onClick={() => {
@@ -960,13 +992,12 @@ export default function Header() {
                 }}
                 title="Retour au tableau des charges"
               >
-                <i className="fas fa-arrow-left me-2"></i>Retour au tableau des charges
-              </button>
+                <i className="fas fa-arrow-left me-2"></i>Les charges</button>
             </div>
           )}
 
-          {/* Groupe de navigation centré */}
-          <div className="modern-nav-container d-flex justify-content-center flex-grow-1" style={{ minWidth: 0 }}>
+          {/* Groupe de navigation à gauche */}
+          <div className="modern-nav-container d-flex justify-content-start" style={{ marginLeft: '1rem', flex: '1 1 auto' }}>
 
             {/* Bouton Gérer les comptes - Visible uniquement pour les admins */}
             {!isClientDetailPage && user && user.role === 'admin' && (
@@ -1152,7 +1183,10 @@ export default function Header() {
 
             {/* (Déplacés à gauche) voir reçus / CARTE / Statistiques */}
 
-            {/* Bouton Déconnexion - à la fin de la ligne principale */}
+          </div>
+
+          {/* Zone droite: Bouton Déconnexion */}
+          <div className="d-flex align-items-center flex-shrink-0">
             {isAuthenticated && (
               <button
                 className="btn modern-btn modern-btn-danger"
@@ -1291,14 +1325,14 @@ export default function Header() {
               opacity: 1;
             }
             .admin-side-menu .side-btn.gold {
-              background: linear-gradient(45deg, #ffd700, #ffed4e);
-              color: #1a1a1a;
-              border: 1px solid rgba(255, 215, 0, 0.5);
-              box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+              background: linear-gradient(45deg, #0b5796, #0b5796);
+              color: #ffffff;
+              border: 1px solid rgba(11, 87, 150, 0.5);
+              box-shadow: 0 6px 16px rgba(11, 87, 150, 0.4);
             }
             .admin-side-menu .side-btn.gold:hover {
-              background: linear-gradient(45deg, #ffed4e, #ffd700);
-              box-shadow: 0 8px 20px rgba(255, 215, 0, 0.6);
+              background: linear-gradient(45deg, #0a4c83, #0c5fa9);
+              box-shadow: 0 8px 20px rgba(11, 87, 150, 0.55);
             }
             @media (max-width: 992px) { .admin-side-menu { display: none; } }
           `}</style>

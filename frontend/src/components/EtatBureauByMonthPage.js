@@ -26,6 +26,9 @@ export default function EtatBureauByMonthPage() {
             alert('Veuillez sélectionner un mois');
             return;
         }
+        // Réinitialiser les variables globales pour l'état bureau
+        window.currentEtatClientId = null;
+        window.currentEtatType = 'bureau';
         setShowModal(true);
     };
 

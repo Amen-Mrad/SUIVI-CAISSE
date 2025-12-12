@@ -2,21 +2,32 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 
-// Détection paresseuse de la colonne prenom dans la table client
-let clientHasPrenomColumnCache = null;
-async function clientHasPrenomColumn() {
-  if (clientHasPrenomColumnCache !== null) return clientHasPrenomColumnCache;
+// Détection paresseuse des colonnes optionnelles dans la table client
+let clientColumnsCache = null;
+async function getClientColumns() {
+  if (clientColumnsCache !== null) return clientColumnsCache;
   try {
     const [rows] = await pool.execute(
-      `SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
-         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'client' AND COLUMN_NAME = 'prenom' 
-         LIMIT 1`
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'client'`
     );
-    clientHasPrenomColumnCache = rows.length > 0;
+    const set = new Set(rows.map(r => r.COLUMN_NAME));
+    clientColumnsCache = {
+      hasPrenom: set.has('prenom'),
+      hasTelephone: set.has('telephone'),
+      hasEmail: set.has('email'),
+      hasAdresse: set.has('adresse')
+    };
   } catch (_) {
-    clientHasPrenomColumnCache = false;
+    clientColumnsCache = { hasPrenom: false, hasTelephone: false, hasEmail: false, hasAdresse: false };
   }
-  return clientHasPrenomColumnCache;
+  return clientColumnsCache;
+}
+
+// Fonctions de compatibilité pour l'ancien code
+async function clientHasPrenomColumn() {
+  const cols = await getClientColumns();
+  return cols.hasPrenom;
 }
 
 // Rechercher un client par username
@@ -28,10 +39,11 @@ router.get('/search', async (req, res) => {
       return res.status(400).json({ error: 'Paramètre de recherche requis' });
     }
 
-    const hasPrenom = await clientHasPrenomColumn();
+    const { hasPrenom, hasTelephone } = await getClientColumns();
     const selectPrenom = hasPrenom ? 'prenom' : 'NULL AS prenom';
+    const selectTelephone = hasTelephone ? 'telephone' : 'NULL AS telephone';
     const [rows] = await pool.execute(
-      `SELECT id, nom, ${selectPrenom}, username, telephone
+      `SELECT id, nom, ${selectPrenom}, username, ${selectTelephone}
        FROM client
        WHERE username LIKE ?
        ORDER BY nom${hasPrenom ? ', prenom' : ''}`,
@@ -60,10 +72,11 @@ router.get('/by-username/:username', async (req, res) => {
       return res.status(400).json({ error: 'Username requis' });
     }
 
-    const hasPrenom = await clientHasPrenomColumn();
+    const { hasPrenom, hasTelephone } = await getClientColumns();
     const selectPrenom = hasPrenom ? 'prenom' : 'NULL AS prenom';
+    const selectTelephone = hasTelephone ? 'telephone' : 'NULL AS telephone';
     const [rows] = await pool.execute(
-      `SELECT id, nom, ${selectPrenom}, username, telephone FROM client WHERE username = ? LIMIT 5`,
+      `SELECT id, nom, ${selectPrenom}, username, ${selectTelephone} FROM client WHERE username = ? LIMIT 5`,
       [username]
     );
 
@@ -78,10 +91,11 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const hasPrenom = await clientHasPrenomColumn();
+    const { hasPrenom, hasTelephone } = await getClientColumns();
     const selectPrenom = hasPrenom ? 'prenom' : 'NULL AS prenom';
+    const selectTelephone = hasTelephone ? 'telephone' : 'NULL AS telephone';
     const [rows] = await pool.execute(
-      `SELECT id, nom, ${selectPrenom}, username, telephone FROM client WHERE id = ?`,
+      `SELECT id, nom, ${selectPrenom}, username, ${selectTelephone} FROM client WHERE id = ?`,
       [id]
     );
 
@@ -105,10 +119,11 @@ router.get('/:id', async (req, res) => {
 // Obtenir tous les clients (nom et téléphone seulement)
 router.get('/', async (req, res) => {
   try {
-    const hasPrenom = await clientHasPrenomColumn();
+    const { hasPrenom, hasTelephone } = await getClientColumns();
     const selectPrenom = hasPrenom ? 'prenom' : 'NULL AS prenom';
+    const selectTelephone = hasTelephone ? 'telephone' : 'NULL AS telephone';
     const [rows] = await pool.execute(
-      `SELECT id, nom, ${selectPrenom}, username, telephone FROM client ORDER BY nom${hasPrenom ? ', prenom' : ''}`
+      `SELECT id, nom, ${selectPrenom}, username, ${selectTelephone} FROM client ORDER BY nom${hasPrenom ? ', prenom' : ''}`
     );
 
     res.json({
@@ -164,8 +179,16 @@ router.post('/', async (req, res) => {
 
     // plus de contrôle email
 
-    // Vérifier si le téléphone existe déjà
-    if (telephoneTrim !== '') {
+    // Convertir prenom vide en NULL
+    const prenomFinal = prenomTrim === '' ? null : prenomTrim;
+    // Convertir telephone vide en NULL
+    const telephoneFinal = telephoneTrim === '' ? null : telephoneTrim;
+
+    // Récupérer les colonnes disponibles
+    const { hasPrenom, hasTelephone } = await getClientColumns();
+
+    // Vérifier si le téléphone existe déjà (seulement si la colonne existe)
+    if (hasTelephone && telephoneTrim !== '') {
       const [existingTel] = await pool.execute(
         'SELECT id FROM client WHERE telephone = ?',
         [telephoneTrim]
@@ -174,26 +197,31 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Ce téléphone est déjà utilisé' });
       }
     }
-
-    // Convertir prenom vide en NULL
-    const prenomFinal = prenomTrim === '' ? null : prenomTrim;
-    // Convertir telephone vide en NULL
-    const telephoneFinal = telephoneTrim === '' ? null : telephoneTrim;
-
-    const hasPrenom = await clientHasPrenomColumn();
     let result;
-    if (hasPrenom) {
+    if (hasPrenom && hasTelephone) {
       [result] = await pool.execute(`
         INSERT INTO client (
           nom, prenom, username, telephone
         ) VALUES (?, ?, ?, ?)
       `, [nomTrim, prenomFinal, usernameTrim, telephoneFinal]);
-    } else {
+    } else if (hasPrenom && !hasTelephone) {
+      [result] = await pool.execute(`
+        INSERT INTO client (
+          nom, prenom, username
+        ) VALUES (?, ?, ?)
+      `, [nomTrim, prenomFinal, usernameTrim]);
+    } else if (!hasPrenom && hasTelephone) {
       [result] = await pool.execute(`
         INSERT INTO client (
           nom, username, telephone
         ) VALUES (?, ?, ?)
       `, [nomTrim, usernameTrim, telephoneFinal]);
+    } else {
+      [result] = await pool.execute(`
+        INSERT INTO client (
+          nom, username
+        ) VALUES (?, ?)
+      `, [nomTrim, usernameTrim]);
     }
 
     res.status(201).json({
@@ -264,8 +292,17 @@ router.put('/:id', async (req, res) => {
 
     // plus de vérification email
 
-    // Vérifier si le téléphone existe déjà pour un autre client
-    if (telephoneTrim !== '') {
+    // Mettre à jour le client
+    // Convertir prenom vide en NULL
+    const prenomFinal = prenomTrim === '' ? null : prenomTrim;
+    // Convertir telephone vide en NULL
+    const telephoneFinal = telephoneTrim === '' ? null : telephoneTrim;
+
+    // Récupérer les colonnes disponibles
+    const { hasPrenom, hasTelephone } = await getClientColumns();
+
+    // Vérifier si le téléphone existe déjà pour un autre client (seulement si la colonne existe)
+    if (hasTelephone && telephoneTrim !== '') {
       const [duplicateTelephone] = await pool.execute(
         'SELECT id FROM client WHERE telephone = ? AND id != ?',
         [telephoneTrim, id]
@@ -277,26 +314,30 @@ router.put('/:id', async (req, res) => {
         });
       }
     }
-
-    // Mettre à jour le client
-    // Convertir prenom vide en NULL
-    const prenomFinal = prenomTrim === '' ? null : prenomTrim;
-    // Convertir telephone vide en NULL
-    const telephoneFinal = telephoneTrim === '' ? null : telephoneTrim;
-
-    const hasPrenom = await clientHasPrenomColumn();
-    if (hasPrenom) {
+    if (hasPrenom && hasTelephone) {
       await pool.execute(`
         UPDATE client 
         SET nom = ?, prenom = ?, username = ?, telephone = ?
         WHERE id = ?
       `, [nomTrim, prenomFinal, usernameTrim, telephoneFinal, id]);
-    } else {
+    } else if (hasPrenom && !hasTelephone) {
+      await pool.execute(`
+        UPDATE client 
+        SET nom = ?, prenom = ?, username = ?
+        WHERE id = ?
+      `, [nomTrim, prenomFinal, usernameTrim, id]);
+    } else if (!hasPrenom && hasTelephone) {
       await pool.execute(`
         UPDATE client 
         SET nom = ?, username = ?, telephone = ?
         WHERE id = ?
       `, [nomTrim, usernameTrim, telephoneFinal, id]);
+    } else {
+      await pool.execute(`
+        UPDATE client 
+        SET nom = ?, username = ?
+        WHERE id = ?
+      `, [nomTrim, usernameTrim, id]);
     }
 
     res.json({

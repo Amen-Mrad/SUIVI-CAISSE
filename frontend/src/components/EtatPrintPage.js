@@ -125,28 +125,99 @@ export default function EtatPrintPage({ mode = 'client' }) {
   }
 
   async function fetchDepenses({ filterType, date, mois, annee, dateDebut, dateFin, clientId }) {
-    let url = '/api/depenses';
-    const params = new URLSearchParams();
-    if (mode !== 'bureau') params.append('type', mode);
-    if (clientId) params.append('client_id', clientId);
-    if (filterType === 'jour' && date) { url = mode === 'bureau' ? '/api/depenses/bureau/par-periode' : '/api/depenses/par-periode'; params.append('date_debut', date); params.append('date_fin', date); }
-    else if (filterType === 'periode' && dateDebut && dateFin) { url = mode === 'bureau' ? '/api/depenses/bureau/par-periode' : '/api/depenses/par-periode'; params.append('date_debut', dateDebut); params.append('date_fin', dateFin); }
-    else if (filterType === 'mois' && mois && annee) { url = mode === 'bureau' ? '/api/depenses/bureau/par-periode' : '/api/depenses/par-periode'; const start = `${annee}-${String(mois).padStart(2, '0')}-01`; const endDate = new Date(annee, mois, 0); const end = `${annee}-${String(mois).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`; params.append('date_debut', start); params.append('date_fin', end); }
-    else if (filterType === 'annee' && annee) { url = mode === 'bureau' ? '/api/depenses/bureau/par-periode' : '/api/depenses/par-periode'; params.append('date_debut', `${annee}-01-01`); params.append('date_fin', `${annee}-12-31`); }
-    if (params.toString()) url += `?${params.toString()}`;
+    if (mode === 'bureau') {
+      // Pour l'état CGM (bureau), récupérer :
+      // 1. Toutes les dépenses bureau
+      // 2. Les dépenses client avec préfixe [CGM] (payées par CGM)
+      
+      // Construire les URLs pour les deux types
+      let bureauUrl = '/api/depenses/bureau';
+      let clientCgmUrl = '/api/depenses';
+      const clientCgmParams = new URLSearchParams();
+      
+      if (filterType === 'jour' && date) {
+        bureauUrl = '/api/depenses/bureau/par-periode';
+        bureauUrl += `?date_debut=${date}&date_fin=${date}`;
+        clientCgmUrl = '/api/depenses/par-periode';
+        clientCgmParams.append('date_debut', date);
+        clientCgmParams.append('date_fin', date);
+      } else if (filterType === 'periode' && dateDebut && dateFin) {
+        bureauUrl = '/api/depenses/bureau/par-periode';
+        bureauUrl += `?date_debut=${dateDebut}&date_fin=${dateFin}`;
+        clientCgmUrl = '/api/depenses/par-periode';
+        clientCgmParams.append('date_debut', dateDebut);
+        clientCgmParams.append('date_fin', dateFin);
+      } else if (filterType === 'mois' && mois && annee) {
+        const start = `${annee}-${String(mois).padStart(2, '0')}-01`;
+        const endDate = new Date(annee, mois, 0);
+        const end = `${annee}-${String(mois).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+        bureauUrl = '/api/depenses/bureau/par-periode';
+        bureauUrl += `?date_debut=${start}&date_fin=${end}`;
+        clientCgmUrl = '/api/depenses/par-periode';
+        clientCgmParams.append('date_debut', start);
+        clientCgmParams.append('date_fin', end);
+      } else if (filterType === 'annee' && annee) {
+        const start = `${annee}-01-01`;
+        const end = `${annee}-12-31`;
+        bureauUrl = '/api/depenses/bureau/par-periode';
+        bureauUrl += `?date_debut=${start}&date_fin=${end}`;
+        clientCgmUrl = '/api/depenses/par-periode';
+        clientCgmParams.append('date_debut', start);
+        clientCgmParams.append('date_fin', end);
+      }
+      
+      if (clientCgmParams.toString()) {
+        clientCgmUrl += `?${clientCgmParams.toString()}`;
+      }
+      
+      // Récupérer les deux types en parallèle
+      const [bureauRes, clientCgmRes] = await Promise.all([
+        fetch(bureauUrl),
+        fetch(clientCgmUrl)
+      ]);
+      
+      const bureauData = await bureauRes.json();
+      const clientCgmData = await clientCgmRes.json();
+      
+      let depensesBureau = bureauData.success ? (bureauData.depenses || []) : [];
+      let depensesClientCgm = clientCgmData.success ? (clientCgmData.depenses || []) : [];
+      
+      // Filtrer les dépenses client pour ne garder que celles avec [CGM]
+      depensesClientCgm = depensesClientCgm.filter(dep => {
+        const desc = (dep.description || dep.libelle || '').toUpperCase();
+        return desc.includes('[CGM]');
+      });
+      
+      // Combiner et exclure les honoraires reçus
+      let data = [...depensesBureau, ...depensesClientCgm];
+      data = data.filter(dep => {
+        const desc = (dep.description || dep.libelle || '').toUpperCase();
+        const isHonoraireRecu = desc.includes('HONORAIRES REÇU') || desc.includes('HONORAIRES RECU');
+        const isAvanceDeclaration = desc.includes('AVANCE DE DECLARATION');
+        return !isHonoraireRecu && !isAvanceDeclaration;
+      });
+      
+      return data;
+    } else {
+      // Pour les dépenses client, récupérer normalement
+      let url = '/api/depenses';
+      const params = new URLSearchParams();
+      params.append('type', mode);
+      if (clientId) params.append('client_id', clientId);
+      if (filterType === 'jour' && date) { url = '/api/depenses/par-periode'; params.append('date_debut', date); params.append('date_fin', date); }
+      else if (filterType === 'periode' && dateDebut && dateFin) { url = '/api/depenses/par-periode'; params.append('date_debut', dateDebut); params.append('date_fin', dateFin); }
+      else if (filterType === 'mois' && mois && annee) { const start = `${annee}-${String(mois).padStart(2, '0')}-01`; const endDate = new Date(annee, mois, 0); const end = `${annee}-${String(mois).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`; url = '/api/depenses/par-periode'; params.append('date_debut', start); params.append('date_fin', end); }
+      else if (filterType === 'annee' && annee) { url = '/api/depenses/par-periode'; params.append('date_debut', `${annee}-01-01`); params.append('date_fin', `${annee}-12-31`); }
+      if (params.toString()) url += `?${params.toString()}`;
 
-    const r = await fetch(url);
-    const d = await r.json();
-    let data = d.success ? (d.depenses || []) : [];
+      const r = await fetch(url);
+      const d = await r.json();
+      let data = d.success ? (d.depenses || []) : [];
 
-    // For bureau: include only [CGM] expenses, for client: exclude [CGM]
-    data = data.filter(dep => {
-      const desc = dep.description || dep.libelle || '';
-      if (mode === 'bureau') return desc.includes('[CGM]');
-      if (mode === 'client') return !desc.includes('[CGM]');
-      return true;
-    });
-    return data;
+      // Inclure toutes les dépenses (y compris celles payées par CGM)
+      // Le libellé [CGM] sera remplacé par [PAYÉ PAR CGM] dans l'affichage
+      return data;
+    }
   }
 
   const getCurrentDate = (filterType, { date, mois, annee, dateDebut, dateFin }) => {
@@ -196,9 +267,9 @@ export default function EtatPrintPage({ mode = 'client' }) {
     .header-infos { display: flex; justify-content: space-between; text-align: left; margin-top: 6px; font-size: 9px; line-height: 1.3; }
     .info-gauche { width: 48%; text-align: left; }
     .info-droit { width: 48%; text-align: right; }
-    table { width: 100%; border-collapse: collapse; margin: 8px 0; }
-    th, td { border: 1px solid #ddd; padding: 4px 6px; }
-    thead th { font-weight: bold; background: #f9f9f9; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0; border: 1px solid #000; }
+    th, td { border: 1px solid #000; padding: 4px 6px; }
+    thead th { font-weight: bold; background: #f9f9f9; border: 1px solid #000; }
     .details-section { margin-top: 12px; }
     .total-row { font-weight: bold; background: #f9f9f9; }
     .footer-section { margin-top: 20px; }
@@ -226,7 +297,7 @@ export default function EtatPrintPage({ mode = 'client' }) {
   <div class="details-section">
     <table>
       <thead>
-        <tr><th>Date</th><th>Libellé</th><th>Client</th><th>Montant</th></tr>
+        <tr><th>Date</th><th>Libellé</th>${mode === 'client' ? '' : '<th>Client</th>'}<th>Montant</th></tr>
       </thead>
       <tbody>
         ${honoraires.length > 0 ? honoraires.map(h => {
@@ -238,14 +309,14 @@ export default function EtatPrintPage({ mode = 'client' }) {
           <tr>
             <td>${formatDate(h.date)}</td>
             <td>${h.libelle || '-'}</td>
-            <td>${(h.client_nom || '') + ' ' + (h.client_prenom || '')}</td>
+            ${mode === 'client' ? '' : `<td>${(h.client_nom || '') + ' ' + (h.client_prenom || '')}</td>`}
             <td>${formatMontant(montantAffiche)}</td>
           </tr>
         `;
-        }).join('') : `<tr><td colspan="4" style="text-align:center;color:#666;font-style:italic;">Aucun honoraire reçu</td></tr>`}
+        }).join('') : `<tr><td colspan="${mode === 'client' ? '3' : '4'}" style="text-align:center;color:#666;font-style:italic;">Aucun honoraire reçu</td></tr>`}
       </tbody>
       <tfoot>
-        <tr class="total-row"><td colspan="3">TOTAL HONORAIRES REÇUS</td><td>${formatMontant(getTotalMontant(honoraires))}</td></tr>
+        <tr class="total-row"><td colspan="${mode === 'client' ? '2' : '3'}">TOTAL HONORAIRES REÇUS</td><td>${formatMontant(getTotalMontant(honoraires))}</td></tr>
       </tfoot>
     </table>
   </div>
@@ -253,7 +324,7 @@ export default function EtatPrintPage({ mode = 'client' }) {
   ${depenses.length > 0 ? `
   <div class="details-section">
   <table>
-    <thead><tr><th>Date</th><th>Libellé</th><th>Client</th><th>Montant</th></tr></thead>
+    <thead><tr><th>Date</th><th>Libellé</th>${mode === 'client' ? '' : '<th>Client</th>'}<th>Montant</th></tr></thead>
     <tbody>
         ${depenses.map(d => {
             // Récupérer le nom du bénéficiaire selon la logique précédente
@@ -274,18 +345,22 @@ export default function EtatPrintPage({ mode = 'client' }) {
                 clientName = clientFullName;
             }
             
+            let libelleText = (d.description || d.libelle || '-');
+            // Remplacer [CGM] par [PAYÉ PAR CGM] dans l'affichage
+            libelleText = libelleText.replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
+            
             return `
                 <tr>
                     <td>${formatDate(d.date)}</td>
-                    <td>${(d.description || d.libelle || '-').replace(/^\[CGM\]\s*/, '').replace(/CGM\s*/, '')}</td>
-                    <td>${clientName || '-'}</td>
+                    <td>${libelleText}</td>
+                    ${mode === 'client' ? '' : `<td>${clientName || '-'}</td>`}
                     <td>${formatMontant(d.montant)}</td>
                 </tr>
             `;
         }).join('')}
     </tbody>
     <tfoot>
-        <tr class="total-row"><td colspan="3">TOTAL DÉPENSES</td><td>${formatMontant(getTotalDepenses(depenses))}</td></tr>
+        <tr class="total-row"><td colspan="${mode === 'client' ? '2' : '3'}">TOTAL DÉPENSES</td><td>${formatMontant(getTotalDepenses(depenses))}</td></tr>
     </tfoot>
 </table>
   </div>
@@ -312,7 +387,12 @@ export default function EtatPrintPage({ mode = 'client' }) {
   <div class="footer-section">
     <div class="footer-content">
       <div class="signature-block"><img src="${cachet}" alt="Cachet et Signature" /><div class="signature-line">Cachet et Signature</div></div>
-      <div class="signature-block"><div style="width:200px;height:60px;border-bottom:1px solid #000;margin:0 auto 5px;"></div><div class="signature-line">${mode === 'client' ? 'Signature Client' : 'Signature Bénéficiaire'}</div></div>
+      ${mode === 'client' ? `
+        <div class="signature-block">
+          <div style="width:200px;height:60px;border-bottom:1px solid #000;margin:0 auto 5px;"></div>
+          <div class="signature-line">Signature Client</div>
+        </div>
+      ` : ''}
       <div class="signature-block"><div style="width:200px;height:60px;border-bottom:1px solid #000;margin:0 auto 5px;"></div><div class="signature-line">Signature Caissier</div></div>
     </div>
   </div>

@@ -286,42 +286,109 @@ router.get('/bureau/par-periode', async (req, res) => {
 
 // Supprimer une dépense bureau depuis beneficiaires_bureau
 router.delete('/bureau/:id', async (req, res) => {
+    const conn = await pool.getConnection();
     try {
+        await conn.beginTransaction();
+        
         const { id } = req.params;
-        const [existing] = await pool.execute('SELECT id FROM beneficiaires_bureau WHERE id = ?', [id]);
+        
+        // Récupérer les informations de la dépense bureau avant de la supprimer
+        const [existing] = await conn.execute(
+            'SELECT id, nom_beneficiaire, libelle, montant, date_operation FROM beneficiaires_bureau WHERE id = ?', 
+            [id]
+        );
+        
         if (existing.length === 0) {
+            await conn.rollback();
             return res.status(404).json({ error: 'Dépense bureau non trouvée' });
         }
-        await pool.execute('DELETE FROM beneficiaires_bureau WHERE id = ?', [id]);
-        res.json({ success: true, message: 'Dépense bureau supprimée avec succès' });
+
+        const depense = existing[0];
+        const { nom_beneficiaire, libelle, montant, date_operation } = depense;
+
+        // 1. Supprimer la dépense bureau
+        await conn.execute('DELETE FROM beneficiaires_bureau WHERE id = ?', [id]);
+
+        // 2. Supprimer les entrées correspondantes dans caisse_cgm_operations
+        // Les dépenses bureau créent des opérations avec le format "BUREAU - [bénéficiaire] - [description]"
+        const commentairePattern = `BUREAU%${nom_beneficiaire || ''}%${libelle || ''}%`;
+        const [caisseOperations] = await conn.execute(`
+            SELECT id FROM caisse_cgm_operations 
+            WHERE type_operation = 'retrait'
+            AND ABS(montant - ?) < 0.001
+            AND commentaire LIKE ?
+        `, [parseFloat(montant || 0), commentairePattern]);
+
+        for (const operation of caisseOperations) {
+            await conn.execute('DELETE FROM caisse_cgm_operations WHERE id = ?', [operation.id]);
+            console.log(`✅ Opération CGM liée supprimée (id: ${operation.id})`);
+        }
+
+        await conn.commit();
+        
+        res.json({ success: true, message: 'Dépense bureau et toutes les entrées liées supprimées avec succès' });
     } catch (error) {
+        await conn.rollback();
         console.error('Erreur suppression dépense bureau:', error);
         res.status(500).json({ error: 'Erreur lors de la suppression', message: error.message });
+    } finally {
+        conn.release();
     }
 });
 
 // Retirer une dépense bureau (pour le bouton "Retour au charge")
 router.post('/retirer-bureau', async (req, res) => {
+    const conn = await pool.getConnection();
     try {
+        await conn.beginTransaction();
+        
         const { depense_id } = req.body;
 
         if (!depense_id) {
+            await conn.rollback();
             return res.status(400).json({ error: 'ID de dépense manquant' });
         }
 
-        // Vérifier que la dépense existe
-        const [existing] = await pool.execute('SELECT id FROM beneficiaires_bureau WHERE id = ?', [depense_id]);
+        // Récupérer les informations de la dépense bureau avant de la supprimer
+        const [existing] = await conn.execute(
+            'SELECT id, nom_beneficiaire, libelle, montant, date_operation FROM beneficiaires_bureau WHERE id = ?', 
+            [depense_id]
+        );
+        
         if (existing.length === 0) {
+            await conn.rollback();
             return res.status(404).json({ error: 'Dépense bureau non trouvée' });
         }
 
-        // Supprimer la dépense
-        await pool.execute('DELETE FROM beneficiaires_bureau WHERE id = ?', [depense_id]);
+        const depense = existing[0];
+        const { nom_beneficiaire, libelle, montant } = depense;
 
-        res.json({ success: true, message: 'Dépense retirée des dépenses bureau avec succès' });
+        // 1. Supprimer la dépense bureau
+        await conn.execute('DELETE FROM beneficiaires_bureau WHERE id = ?', [depense_id]);
+
+        // 2. Supprimer les entrées correspondantes dans caisse_cgm_operations
+        const commentairePattern = `BUREAU%${nom_beneficiaire || ''}%${libelle || ''}%`;
+        const [caisseOperations] = await conn.execute(`
+            SELECT id FROM caisse_cgm_operations 
+            WHERE type_operation = 'retrait'
+            AND ABS(montant - ?) < 0.001
+            AND commentaire LIKE ?
+        `, [parseFloat(montant || 0), commentairePattern]);
+
+        for (const operation of caisseOperations) {
+            await conn.execute('DELETE FROM caisse_cgm_operations WHERE id = ?', [operation.id]);
+            console.log(`✅ Opération CGM liée supprimée (id: ${operation.id})`);
+        }
+
+        await conn.commit();
+
+        res.json({ success: true, message: 'Dépense retirée des dépenses bureau et toutes les entrées liées supprimées avec succès' });
     } catch (error) {
+        await conn.rollback();
         console.error('Erreur lors du retrait de la dépense bureau:', error);
         res.status(500).json({ error: 'Erreur lors du retrait de la dépense', message: error.message });
+    } finally {
+        conn.release();
     }
 });
 
@@ -869,36 +936,104 @@ router.put('/:id', async (req, res) => {
 
 // Supprimer une dépense
 router.delete('/:id', async (req, res) => {
+    const conn = await pool.getConnection();
     try {
+        await conn.beginTransaction();
+        
         const { id } = req.params;
 
-        // Vérifier que la dépense existe
-        const [existingDepense] = await pool.execute(`
-            SELECT id FROM depenses_client WHERE id = ?
+        // Récupérer les informations complètes de la dépense avant de la supprimer
+        const [existingDepense] = await conn.execute(`
+            SELECT id, date, libelle, client, montant, client_id, charge_id 
+            FROM depenses_client WHERE id = ?
         `, [id]);
 
         if (existingDepense.length === 0) {
+            await conn.rollback();
             return res.status(404).json({
                 error: 'Dépense non trouvée'
             });
         }
 
-        // Supprimer la dépense
-        await pool.execute(`
+        const depense = existingDepense[0];
+        const { libelle, client, montant, date, client_id, charge_id } = depense;
+
+        // 1. Supprimer la dépense dans depenses_client
+        await conn.execute(`
             DELETE FROM depenses_client WHERE id = ?
         `, [id]);
 
+        // 2. Chercher et supprimer les entrées correspondantes dans beneficiaires_bureau
+        // Si cette dépense a été créée via "Payé par CGM" ou "Client et CGM", 
+        // il y a une entrée dans beneficiaires_bureau avec le préfixe [CGM]
+        const libelleCgm = `[CGM] ${libelle || ''}`;
+        const [bureauDepenses] = await conn.execute(`
+            SELECT id FROM beneficiaires_bureau 
+            WHERE nom_beneficiaire = ? 
+            AND libelle = ? 
+            AND ABS(montant - ?) < 0.001
+            AND DATE(date_operation) = DATE(?)
+        `, [client || '', libelleCgm, parseFloat(montant || 0), date || new Date().toISOString().slice(0, 10)]);
+
+        for (const bureauDep of bureauDepenses) {
+            await conn.execute(`
+                DELETE FROM beneficiaires_bureau WHERE id = ?
+            `, [bureauDep.id]);
+            console.log(`✅ Dépense bureau liée supprimée (id: ${bureauDep.id})`);
+        }
+
+        // 3. Chercher et supprimer les entrées correspondantes dans caisse_cgm_operations
+        // Si cette dépense a été créée via "Payé par CGM", il y a une opération de retrait
+        if (charge_id) {
+            // Chercher par charge_id dans le commentaire (format: "Client - Libellé")
+            const commentairePattern = `%${client || ''}%${libelle || ''}%`;
+            const [caisseOperations] = await conn.execute(`
+                SELECT id FROM caisse_cgm_operations 
+                WHERE type_operation = 'retrait'
+                AND ABS(montant - ?) < 0.001
+                AND (commentaire LIKE ? OR client_id = ?)
+            `, [parseFloat(montant || 0), commentairePattern, client_id || null]);
+
+            for (const operation of caisseOperations) {
+                await conn.execute(`
+                    DELETE FROM caisse_cgm_operations WHERE id = ?
+                `, [operation.id]);
+                console.log(`✅ Opération CGM liée supprimée (id: ${operation.id})`);
+            }
+        } else {
+            // Chercher par commentaire qui contient le nom du client et le libellé
+            const commentairePattern = `%${client || ''}%${libelle || ''}%`;
+            const [caisseOperations] = await conn.execute(`
+                SELECT id FROM caisse_cgm_operations 
+                WHERE type_operation = 'retrait'
+                AND ABS(montant - ?) < 0.001
+                AND commentaire LIKE ?
+            `, [parseFloat(montant || 0), commentairePattern]);
+
+            for (const operation of caisseOperations) {
+                await conn.execute(`
+                    DELETE FROM caisse_cgm_operations WHERE id = ?
+                `, [operation.id]);
+                console.log(`✅ Opération CGM liée supprimée (id: ${operation.id})`);
+            }
+        }
+
+        await conn.commit();
+
         res.json({
             success: true,
-            message: 'Dépense supprimée avec succès'
+            message: 'Dépense et toutes les entrées liées supprimées avec succès'
         });
 
     } catch (error) {
+        await conn.rollback();
         console.error('Erreur lors de la suppression de la dépense:', error);
         res.status(500).json({
             error: 'Erreur lors de la suppression de la dépense',
             message: error.message
         });
+    } finally {
+        conn.release();
     }
 });
 

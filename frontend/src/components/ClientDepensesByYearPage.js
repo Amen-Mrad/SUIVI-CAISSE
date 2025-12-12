@@ -110,6 +110,7 @@ export default function ClientDepensesByYearPage() {
         <>
             <style jsx global>{`
                 body, html { 
+                    background: rgb(187, 187, 187) !important;
                     height: auto !important; 
                     overflow-x: hidden; 
                     overflow-y: auto; 
@@ -117,491 +118,244 @@ export default function ClientDepensesByYearPage() {
                 }
                 
                 .client-depenses-year-page { 
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
-                    background-size: 400% 400%;
-                    animation: gradientShift 15s ease infinite;
+                    background: transparent;
                     min-height: 100vh; 
-                    padding: 2rem 0;
-                    position: relative;
-                    overflow: hidden;
+                    padding: 0.5rem 0;
                 }
                 
-                .client-depenses-year-page::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-                    opacity: 0.3;
-                    pointer-events: none;
-                }
+                .depenses-header { display: none; }
                 
-                @keyframes gradientShift {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                }
-                
-                .depenses-header { 
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(20px);
-                    border-radius: 25px; 
-                    padding: 3rem; 
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
-                    margin-bottom: 2rem;
-                    position: relative;
-                    overflow: hidden;
-                    animation: slideInDown 0.8s ease-out;
-                }
-                
-                .depenses-header::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 4px;
-                    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe);
-                    background-size: 200% 100%;
-                    animation: shimmer 3s ease-in-out infinite;
-                }
-                
-                @keyframes slideInDown {
-                    from { transform: translateY(-50px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
-                
-                @keyframes shimmer {
-                    0% { background-position: -200% 0; }
-                    100% { background-position: 200% 0; }
-                }
-                
-                .depenses-title { 
-                    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
-                    -webkit-background-clip: text; 
-                    -webkit-text-fill-color: transparent; 
-                    background-clip: text; 
-                    font-size: 3rem; 
-                    font-weight: 900; 
-                    margin-bottom: 1rem; 
-                    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                    animation: titleGlow 2s ease-in-out infinite alternate;
-                    position: relative;
-                }
-                
-                @keyframes titleGlow {
-                    from { filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.3)); }
-                    to { filter: drop-shadow(0 0 20px rgba(118, 75, 162, 0.5)); }
-                }
-                
-                .depenses-subtitle { 
-                    color: #6c757d; 
-                    font-size: 1.2rem; 
-                    font-weight: 500; 
-                    margin-bottom: 2rem;
-                    opacity: 0.9;
-                }
-                
-                .modern-back-btn { 
-                    background: linear-gradient(45deg, #667eea, #764ba2);
-                    border: none; 
-                    color: white; 
-                    border-radius: 15px; 
-                    padding: 12px 24px; 
-                    font-weight: 600; 
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                    text-decoration: none; 
-                    display: inline-flex; 
-                    align-items: center; 
-                    gap: 10px;
-                    position: relative;
-                    overflow: hidden;
-                    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-                }
-                
-                .modern-back-btn::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                    transition: left 0.6s;
-                }
-                
-                .modern-back-btn:hover::before {
-                    left: 100%;
-                }
-                
-                .modern-back-btn:hover { 
-                    background: linear-gradient(45deg, #764ba2, #667eea);
-                    transform: translateY(-3px) scale(1.05); 
-                    box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4); 
-                    color: white; 
-                    text-decoration: none; 
-                }
-                
-                .client-info-card { 
-                    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(30, 136, 229, 0.05));
-                    backdrop-filter: blur(10px);
-                    border-radius: 20px; 
-                    padding: 2rem; 
-                    margin-bottom: 2rem; 
-                    border: 1px solid rgba(33, 150, 243, 0.2);
-                    box-shadow: 0 10px 25px rgba(33, 150, 243, 0.1);
-                    animation: slideInUp 0.8s ease-out 0.2s both;
-                    position: relative;
-                    overflow: hidden;
-                }
-                
-                .client-info-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 4px;
-                    height: 100%;
-                    background: linear-gradient(180deg, #2196f3, #1976d2);
-                }
-                
-                @keyframes slideInUp {
-                    from { transform: translateY(30px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
-                
-                .client-info-title { 
-                    color: #1976d2; 
-                    font-weight: 800; 
-                    font-size: 1.4rem; 
-                    margin-bottom: 1.5rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                
-                .client-info-text { 
-                    color: #424242; 
-                    font-size: 1.1rem; 
-                    margin-bottom: 0.8rem;
-                    font-weight: 500;
-                }
-                
-                .year-selector-container { 
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(20px);
-                    border-radius: 25px; 
-                    padding: 3rem; 
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
-                    margin-bottom: 2rem; 
-                    max-width: 600px; 
-                    margin-left: auto; 
+                .client-info-card {
+                    background: #ffffff;
+                    border-radius: 8px;
+                    padding: 0.75rem 1rem;
+                    margin-bottom: 1rem;
+                    border: 1px solid #d5dbe3;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                    max-width: 1100px;
+                    margin-left: auto;
                     margin-right: auto;
-                    animation: slideInUp 0.8s ease-out 0.4s both;
-                    position: relative;
-                    overflow: hidden;
                 }
                 
-                .year-selector-container::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 4px;
-                    background: linear-gradient(90deg, #2196f3, #1976d2, #1565c0);
-                    background-size: 200% 100%;
-                    animation: shimmer 3s ease-in-out infinite;
+                .client-info-title {
+                    color: #0b5796;
+                    font-weight: 700;
+                    font-size: 1rem;
+                    margin-bottom: 0.5rem;
                 }
                 
-                .year-selector-title { 
-                    color: #2c3e50; 
-                    font-weight: 800; 
-                    font-size: 1.6rem; 
-                    margin-bottom: 2rem; 
-                    text-align: center;
-                    background: linear-gradient(45deg, #2c3e50, #34495e);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
+                .client-info-text {
+                    color: #2c3e50;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.3rem;
                 }
                 
-                .year-input-group { 
-                    display: flex; 
-                    flex-direction: column; 
-                    gap: 1.5rem; 
-                    margin-bottom: 2.5rem; 
+                .action-container { 
+                    background: #ffffff; 
+                    border-radius: 12px; 
+                    padding: 1rem 1.5rem; 
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+                    border: 1px solid #d5dbe3; 
+                    max-width: 1100px; 
+                    margin: 0 auto 1rem auto; 
                 }
                 
-                .input-label { 
-                    color: #495057; 
-                    font-weight: 700; 
-                    font-size: 1.2rem; 
-                    text-align: center;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                }
-                
-                .year-select { 
-                    border: 2px solid #e9ecef; 
-                    border-radius: 20px; 
-                    padding: 15px 25px; 
-                    font-size: 1.2rem; 
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                    background: #f8f9fa; 
-                    text-align: center;
-                    font-weight: 600;
-                    color: #495057;
-                    position: relative;
-                }
-                
-                .year-select:focus { 
-                    outline: none; 
-                    border-color: #2196f3; 
-                    background: white; 
-                    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.1), 0 10px 25px rgba(33, 150, 243, 0.2);
-                    transform: translateY(-2px);
-                }
-                
-                .year-select:hover {
-                    border-color: #2196f3;
-                    transform: translateY(-1px);
-                    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.1);
-                }
-                
-                .show-btn { 
-                    background: linear-gradient(45deg, #2196f3, #1976d2, #1565c0);
-                    border: none; 
-                    color: white; 
-                    border-radius: 20px; 
-                    padding: 15px 30px; 
-                    font-weight: 700; 
+                .filter-title {
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+                    color: #ffffff;
+                    padding: 0.85rem 1rem;
+                    border-radius: 8px;
+                    font-weight: 700;
                     font-size: 1.1rem;
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-                    position: relative; 
-                    overflow: hidden; 
-                    min-width: 200px;
-                    box-shadow: 0 10px 25px rgba(33, 150, 243, 0.3);
+                    margin-bottom: 1rem;
+                    text-align: center;
                 }
                 
-                .show-btn::before { 
-                    content: ''; 
-                    position: absolute; 
-                    top: 0; 
-                    left: -100%; 
-                    width: 100%; 
-                    height: 100%; 
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); 
-                    transition: left 0.8s; 
+                .filter-row { 
+                    display: flex; 
+                    gap: 0.75rem; 
+                    align-items: center; 
+                    justify-content: center; 
+                    flex-wrap: wrap; 
                 }
                 
-                .show-btn:hover::before { 
-                    left: 100%; 
+                .filter-row label { 
+                    margin-bottom: 0; 
+                    color: #2c3e50; 
+                    font-weight: 600;
+                    font-size: 0.9rem;
                 }
                 
-                .show-btn:hover { 
-                    transform: translateY(-4px) scale(1.05); 
-                    box-shadow: 0 20px 40px rgba(33, 150, 243, 0.4);
-                    background: linear-gradient(45deg, #1976d2, #1565c0, #0d47a1);
+                .filter-row input[type="date"], 
+                .filter-row select { 
+                    border: 1px solid #d5dbe3; 
+                    border-radius: 8px; 
+                    padding: 6px 12px; 
+                    font-size: 0.9rem;
+                    background: #ffffff;
+                    transition: all 0.2s ease;
                 }
                 
-                .show-btn:disabled { 
-                    opacity: 0.7; 
+                .filter-row input[type="date"]:focus, 
+                .filter-row select:focus {
+                    outline: none;
+                    border-color: #0b5796;
+                    box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
+                }
+                
+                .btn-search { 
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%); 
+                    color: #fff; 
+                    border: none; 
+                    border-radius: 8px; 
+                    padding: 8px 20px; 
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    transition: all 0.2s ease;
+                    cursor: pointer;
+                }
+                
+                .btn-search:hover {
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 14px rgba(46, 125, 50, 0.3);
+                }
+                
+                .btn-search:disabled {
+                    opacity: 0.7;
                     transform: none;
                     cursor: not-allowed;
                 }
                 
-                .info-cards { 
-                    display: grid; 
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-                    gap: 2rem; 
-                    margin-bottom: 2rem;
+                .modern-spinner {
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid #f3f3f3;
+                    border-top: 2px solid #2E7D32;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    display: inline-block;
+                    margin-right: 8px;
                 }
                 
-                .info-card { 
-                    background: rgba(255, 255, 255, 0.9);
-                    backdrop-filter: blur(10px);
-                    border-radius: 20px; 
-                    padding: 2rem; 
-                    border: 1px solid rgba(33, 150, 243, 0.1);
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    position: relative;
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                
+                .inline-results-card { 
+                    background: #ffffff; 
+                    border-radius: 12px; 
+                    border: 1px solid #d5dbe3; 
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+                    padding: 0.75rem; 
+                    max-width: 1100px;
+                    margin: 0 auto;
+                }
+                
+                .inline-table { 
+                    width: 100%; 
+                    border-collapse: separate;
+                    border-spacing: 0;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    border-radius: 8px;
                     overflow: hidden;
-                    animation: slideInUp 0.8s ease-out both;
                 }
                 
-                .info-card:nth-child(1) { animation-delay: 0.1s; }
-                .info-card:nth-child(2) { animation-delay: 0.2s; }
-                .info-card:nth-child(3) { animation-delay: 0.3s; }
-                
-                .info-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 4px;
-                    height: 100%;
-                    background: linear-gradient(180deg, #2196f3, #1976d2);
-                    transform: scaleY(0);
-                    transition: transform 0.3s ease;
+                .inline-table thead th { 
+                    background: #0b5796; 
+                    color: #ffffff; 
+                    border-bottom: 1px solid rgba(213, 219, 227, 0.8);
+                    border-right: 1px solid rgba(213, 219, 227, 0.8);
+                    font-weight: 750;
+                    padding: 0.7rem;
+                    text-align: left;
+                    font-size: 0.88rem;
                 }
                 
-                .info-card:hover::before {
-                    transform: scaleY(1);
+                .inline-table thead th:last-child {
+                    border-right: none;
                 }
                 
-                .info-card:hover { 
-                    transform: translateY(-8px) scale(1.02); 
-                    box-shadow: 0 20px 40px rgba(33, 150, 243, 0.15);
-                    background: rgba(255, 255, 255, 0.95);
+                .inline-table th, .inline-table td { 
+                    padding: 0.6rem 0.7rem; 
+                    border-bottom: 1px solid rgba(227, 231, 238, 0.8);
+                    border-right: 1px solid rgba(227, 231, 238, 0.8);
+                    text-align: left; 
+                    font-size: 0.85rem;
                 }
                 
-                .info-card-icon { 
-                    font-size: 2.5rem; 
-                    color: #2196f3; 
-                    margin-bottom: 1.5rem;
-                    animation: iconFloat 3s ease-in-out infinite;
+                .inline-table td:last-child {
+                    border-right: none;
                 }
                 
-                @keyframes iconFloat {
-                    0%, 100% { transform: translateY(0px); }
-                    50% { transform: translateY(-10px); }
+                .inline-table tbody tr {
+                    background-color: transparent;
                 }
                 
-                .info-card-title { 
-                    color: #2c3e50; 
-                    font-weight: 800; 
-                    font-size: 1.3rem; 
-                    margin-bottom: 1rem;
+                .inline-table tbody tr:hover { 
+                    background: #f0f6ff; 
                 }
                 
-                .info-card-text { 
-                    color: #6c757d; 
-                    font-size: 1rem; 
-                    line-height: 1.6;
-                    font-weight: 500;
-                }
-                
-                .modern-spinner { 
-                    width: 24px; 
-                    height: 24px; 
-                    border: 3px solid rgba(255, 255, 255, 0.3); 
-                    border-top: 3px solid white; 
-                    border-radius: 50%; 
-                    animation: spin 1s linear infinite; 
-                    display: inline-block; 
-                    margin-right: 10px; 
-                }
-                
-                @keyframes spin { 
-                    0% { transform: rotate(0deg); } 
-                    100% { transform: rotate(360deg); } 
-                }
-                
-                /* Animations d'entrée */
-                .container > * {
-                    animation: fadeInUp 0.8s ease-out both;
-                }
-                
-                .container > *:nth-child(1) { animation-delay: 0.1s; }
-                .container > *:nth-child(2) { animation-delay: 0.2s; }
-                .container > *:nth-child(3) { animation-delay: 0.3s; }
-                .container > *:nth-child(4) { animation-delay: 0.4s; }
-                
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
+                @media (max-width: 768px) {
+                    .action-container {
+                        margin: 0.5rem;
+                        padding: 1rem;
                     }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                /* Responsive Design */
-                @media (max-width: 768px) { 
-                    .depenses-title { font-size: 2.2rem; } 
-                    .depenses-header, .year-selector-container { 
-                        margin: 1rem; 
-                        padding: 2rem; 
-                    } 
-                    .info-cards { 
-                        grid-template-columns: 1fr; 
-                        gap: 1.5rem;
-                    }
-                    .client-depenses-year-page {
-                        padding: 1rem 0;
-                    }
-                }
-                
-                @media (max-width: 480px) {
-                    .depenses-title { font-size: 1.8rem; }
-                    .depenses-header, .year-selector-container {
-                        padding: 1.5rem;
-                    }
-                    .info-card {
-                        padding: 1.5rem;
+                    
+                    .inline-results-card {
+                        margin: 0 0.5rem;
                     }
                 }
             `}</style>
 
             <div className="client-depenses-year-page">
                 <div className="container">
-                    <div className="depenses-header">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h1 className="depenses-title"><i className="fas fa-calendar me-3"></i>Dépenses Client - Par Année</h1>
-                                <p className="depenses-subtitle">Consultez les dépenses du client pour une année complète</p>
-                            </div>
-                            <Link to={`/client/${id}`} className="modern-back-btn"><i className="fas fa-arrow-left"></i>Retour</Link>
-                        </div>
-                    </div>
-
+                    {/* Informations du client */}
                     {clientInfo && (
                         <div className="client-info-card">
-                            <div className="client-info-title"><i className="fas fa-user me-2"></i>Informations du client</div>
-                            <div className="client-info-text"><strong>Nom :</strong> {clientInfo.nom} {clientInfo.prenom}</div>
-                            <div className="client-info-text"><strong>Téléphone :</strong> {clientInfo.telephone}</div>
-                            <div className="client-info-text"><strong>Email :</strong> {clientInfo.email}</div>
+                            <div className="client-info-title">
+                                <i className="fas fa-user me-2"></i>
+                                Informations du client
+                            </div>
+                            <div className="client-info-text">
+                                <strong>Nom :</strong> {clientInfo.nom} {clientInfo.prenom}
+                            </div>
+                            <div className="client-info-text">
+                                <strong>Téléphone :</strong> {clientInfo.telephone || 'Non renseigné'}
+                            </div>
+                            <div className="client-info-text">
+                                <strong>Email :</strong> {clientInfo.email || 'Non renseigné'}
+                            </div>
                         </div>
                     )}
 
-                    <div className="info-cards">
-                        <div className="info-card">
-                            <div className="info-card-icon"><i className="fas fa-calendar-year"></i></div>
-                            <div className="info-card-title">Vue annuelle</div>
-                            <div className="info-card-text">Consultez toutes les dépenses de ce client au cours d'une année complète.</div>
-                        </div>
-                        <div className="info-card">
-                            <div className="info-card-icon"><i className="fas fa-user"></i></div>
-                            <div className="info-card-title">Dépenses client</div>
-                            <div className="info-card-text">Visualisez toutes les dépenses spécifiques à ce client pour l'année sélectionnée.</div>
-                        </div>
-                        <div className="info-card">
-                            <div className="info-card-icon"><i className="fas fa-chart-pie"></i></div>
-                            <div className="info-card-title">Analyse complète</div>
-                            <div className="info-card-text">Analysez les tendances et performances de ce client sur toute l'année.</div>
-                        </div>
-                    </div>
-
-                    <div className="year-selector-container">
-                        <h5 className="year-selector-title"><i className="fas fa-calendar me-2"></i>Sélectionner une année</h5>
-
-                        <div className="year-input-group">
-                            <label className="input-label"><i className="fas fa-calendar-year me-2"></i>Année :</label>
-                            <select className="year-select" value={selectedYear} onChange={handleYearChange}>
-                                {years.map(year => <option key={year} value={year}>{year}</option>)}
+                    {/* Filtres */}
+                    <div className="action-container text-center">
+                        <div className="filter-title">Filtrer les dépenses client - Par Année</div>
+                        <div className="filter-row" style={{ marginTop: '0.25rem' }}>
+                            <label className="mb-0 me-1">Année</label>
+                            <select value={selectedYear} onChange={handleYearChange}>
+                                {years.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
                             </select>
-                        </div>
-
-                        <div className="text-center">
-                            <button className="show-btn" onClick={handleShowDepenses} disabled={loading}>
-                                {loading ? (<><div className="modern-spinner"></div>Chargement...</>) : (<><i className="fas fa-eye me-2"></i>Afficher les Dépenses</>)}
+                            <button 
+                                className="btn-search" 
+                                onClick={handleShowDepenses} 
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <div className="modern-spinner"></div>
+                                        Chargement...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-eye me-2"></i>
+                                        Afficher les Dépenses
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -671,8 +425,8 @@ export default function ClientDepensesByYearPage() {
                                                 {filteredDepenses.map((depense, index) => {
                                                     const clientName = depense.client || depense.beneficiaire;
                                                     let libelleText = depense.libelle || depense.description || '-';
-                                                    // Supprimer le préfixe [CGM PAYÉ] du libellé
-                                                    libelleText = libelleText.replace(/^\[CGM PAYÉ\]\s*/, '');
+                                                    // Remplacer [CGM] ou [CGM PAYÉ] par [PAYÉ PAR CGM] dans l'affichage
+                                                    libelleText = libelleText.replace(/^\[CGM PAYÉ\]\s*/, '[PAYÉ PAR CGM] ').replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
 
                                                     // Déterminer la couleur du montant selon le type de dépense
                                                     const rawText = (depense.libelle || depense.description || '').toUpperCase();

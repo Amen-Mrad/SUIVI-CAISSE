@@ -65,9 +65,14 @@ router.get('/caisse-live', async (req, res) => {
         console.log('Caisse CGM Live - Total honoraires calculé:', totalHonoraires);
 
         // Derniers mouvements (honoraires reçus) avec infos de base
+        const { hasPrenom } = await getClientCols();
+        const prenomField = hasPrenom ? 'cl.prenom' : 'NULL';
+        const clientNameExpr = hasPrenom 
+            ? "COALESCE(CONCAT(cl.prenom, ' ', cl.nom), cl.nom, '')"
+            : "COALESCE(cl.nom, '')";
         const [recentRows] = await pool.execute(`
             SELECT ch.id, ch.date, ch.libelle, ch.avance, ch.montant, ch.client_id,
-                   COALESCE(CONCAT(cl.prenom, ' ', cl.nom), '') AS client_name,
+                   ${clientNameExpr} AS client_name,
                    GREATEST(COALESCE(ch.avance, 0), COALESCE(ch.montant, 0)) AS montant_total
             FROM charges_mensuelles ch
             LEFT JOIN client cl ON cl.id = ch.client_id

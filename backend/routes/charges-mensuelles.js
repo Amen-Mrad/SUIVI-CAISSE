@@ -15,10 +15,12 @@ async function getClientColumns() {
         clientColumnsCache = {
             hasPrenom: set.has('prenom'),
             hasEmail: set.has('email'),
-            hasUsername: set.has('username')
+            hasUsername: set.has('username'),
+            hasTelephone: set.has('telephone'),
+            hasAdresse: set.has('adresse')
         };
     } catch (_) {
-        clientColumnsCache = { hasPrenom: false, hasEmail: false, hasUsername: false };
+        clientColumnsCache = { hasPrenom: false, hasEmail: false, hasUsername: false, hasTelephone: false, hasAdresse: false };
     }
     return clientColumnsCache;
 }
@@ -112,11 +114,12 @@ router.get('/client/:clientId', async (req, res) => {
         const { annee = new Date().getFullYear(), all = false } = req.query;
 
         // Vérifier que le client existe
-        const { hasPrenom, hasEmail } = await getClientColumns();
+        const { hasPrenom, hasEmail, hasTelephone } = await getClientColumns();
         const selectPrenom = hasPrenom ? 'prenom' : 'NULL AS prenom';
         const selectEmail = hasEmail ? 'email' : 'NULL AS email';
+        const selectTelephone = hasTelephone ? 'telephone' : 'NULL AS telephone';
         const [clientCheck] = await pool.execute(
-            `SELECT id, nom, ${selectPrenom}, ${selectEmail}, telephone FROM client WHERE id = ?`,
+            `SELECT id, nom, ${selectPrenom}, ${selectEmail}, ${selectTelephone} FROM client WHERE id = ?`,
             [clientId]
         );
 
@@ -496,32 +499,117 @@ router.put('/:id', async (req, res) => {
 
 // Supprimer une charge mensuelle
 router.delete('/:id', async (req, res) => {
+    const conn = await pool.getConnection();
     try {
+        await conn.beginTransaction();
+        
         const { id } = req.params;
 
-        // Vérifier que la charge existe
-        const [existingCharge] = await pool.execute(
-            'SELECT * FROM charges_mensuelles WHERE id = ?',
+        // Récupérer les informations complètes de la charge avant de la supprimer
+        const [existingCharge] = await conn.execute(
+            `SELECT ch.*, c.nom as client_nom 
+             FROM charges_mensuelles ch 
+             LEFT JOIN client c ON c.id = ch.client_id 
+             WHERE ch.id = ?`,
             [id]
         );
 
         if (existingCharge.length === 0) {
+            await conn.rollback();
             return res.status(404).json({ error: 'Charge non trouvée' });
         }
 
-        // Supprimer la charge
-        await pool.execute('DELETE FROM charges_mensuelles WHERE id = ?', [id]);
+        const charge = existingCharge[0];
+        const { libelle, montant, avance, client_id, client_nom } = charge;
+
+        // 1. Supprimer toutes les dépenses client liées à cette charge
+        const [depensesClient] = await conn.execute(
+            'SELECT id FROM depenses_client WHERE charge_id = ?',
+            [id]
+        );
+        
+        for (const depense of depensesClient) {
+            // Pour chaque dépense client, supprimer aussi les entrées liées dans beneficiaires_bureau et caisse_cgm_operations
+            const [depenseDetails] = await conn.execute(
+                'SELECT libelle, client, montant, date FROM depenses_client WHERE id = ?',
+                [depense.id]
+            );
+            
+            if (depenseDetails.length > 0) {
+                const dep = depenseDetails[0];
+                const libelleCgm = `[CGM] ${dep.libelle || ''}`;
+                
+                // Supprimer les entrées correspondantes dans beneficiaires_bureau
+                const [bureauDepenses] = await conn.execute(`
+                    SELECT id FROM beneficiaires_bureau 
+                    WHERE nom_beneficiaire = ? 
+                    AND libelle = ? 
+                    AND ABS(montant - ?) < 0.001
+                    AND DATE(date_operation) = DATE(?)
+                `, [dep.client || '', libelleCgm, parseFloat(dep.montant || 0), dep.date || new Date().toISOString().slice(0, 10)]);
+
+                for (const bureauDep of bureauDepenses) {
+                    await conn.execute('DELETE FROM beneficiaires_bureau WHERE id = ?', [bureauDep.id]);
+                }
+            }
+        }
+        
+        // Supprimer toutes les dépenses client
+        await conn.execute('DELETE FROM depenses_client WHERE charge_id = ?', [id]);
+
+        // 2. Supprimer les entrées dans beneficiaires_bureau liées à cette charge
+        // Chercher par libellé avec préfixe [CGM] et nom du client
+        const libelleCgm = `[CGM] ${libelle || ''}`;
+        const chargeLibelle = (libelle || '').toUpperCase();
+        const isHonoraireRecu = chargeLibelle.includes('HONORAIRES REÇU') || chargeLibelle.includes('AVANCE DE DECLARATION');
+        const depenseMontant = isHonoraireRecu ? parseFloat(avance || 0) : parseFloat(montant || 0);
+        
+        if (depenseMontant > 0 && !isHonoraireRecu) {
+            const [bureauDepenses] = await conn.execute(`
+                SELECT id FROM beneficiaires_bureau 
+                WHERE nom_beneficiaire = ? 
+                AND libelle = ? 
+                AND ABS(montant - ?) < 0.001
+            `, [client_nom || 'Client', libelleCgm, depenseMontant]);
+
+            for (const bureauDep of bureauDepenses) {
+                await conn.execute('DELETE FROM beneficiaires_bureau WHERE id = ?', [bureauDep.id]);
+                console.log(`✅ Dépense bureau liée supprimée (id: ${bureauDep.id})`);
+            }
+        }
+
+        // 3. Supprimer les entrées dans caisse_cgm_operations liées à cette charge
+        // Chercher par commentaire qui contient le nom du client et le libellé
+        const commentairePattern = `%${client_nom || ''}%${libelle || ''}%`;
+        const [caisseOperations] = await conn.execute(`
+            SELECT id FROM caisse_cgm_operations 
+            WHERE type_operation = 'retrait'
+            AND (commentaire LIKE ? OR client_id = ?)
+        `, [commentairePattern, client_id || null]);
+
+        for (const operation of caisseOperations) {
+            await conn.execute('DELETE FROM caisse_cgm_operations WHERE id = ?', [operation.id]);
+            console.log(`✅ Opération CGM liée supprimée (id: ${operation.id})`);
+        }
+
+        // 4. Supprimer la charge elle-même
+        await conn.execute('DELETE FROM charges_mensuelles WHERE id = ?', [id]);
+
+        await conn.commit();
 
         res.json({
             success: true,
-            message: 'Charge mensuelle supprimée avec succès'
+            message: 'Charge et toutes les entrées liées supprimées avec succès'
         });
     } catch (error) {
+        await conn.rollback();
         console.error('Erreur lors de la suppression de la charge:', error);
         res.status(500).json({
             error: 'Erreur lors de la suppression',
             message: error.message
         });
+    } finally {
+        conn.release();
     }
 });
 
@@ -624,8 +712,10 @@ router.get('/solde-reporte/:clientId', async (req, res) => {
         const { annee = new Date().getFullYear() } = req.query;
 
         // Vérifier que le client existe
+        const { hasPrenom } = await getClientColumns();
+        const selectPrenom = hasPrenom ? 'prenom' : 'NULL AS prenom';
         const [clientCheck] = await pool.execute(
-            'SELECT id, nom, prenom FROM client WHERE id = ?',
+            `SELECT id, nom, ${selectPrenom} FROM client WHERE id = ?`,
             [clientId]
         );
 

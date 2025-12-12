@@ -166,7 +166,18 @@ export default function AddDepensePage() {
             const data = await response.json();
 
             if (data.success) {
-                setDepenses(data.depenses || []);
+                const depensesData = data.depenses || [];
+                console.log('📊 Dépenses récupérées dans AddDepensePage:', depensesData.length, depensesData);
+                // S'assurer que toutes les dépenses ont les bons champs
+                const depensesFormatees = depensesData.map(dep => ({
+                    ...dep,
+                    libelle: dep.libelle || dep.description || '',
+                    description: dep.description || dep.libelle || '',
+                    beneficiaire: dep.beneficiaire || dep.nom_beneficiaire || dep.client || '',
+                    client: dep.client || dep.nom_beneficiaire || dep.beneficiaire || '',
+                    date: dep.date || dep.date_operation || ''
+                }));
+                setDepenses(depensesFormatees);
                 setTotalDepenses(data.total || 0);
             } else {
                 setDepenses([]);
@@ -265,203 +276,156 @@ export default function AddDepensePage() {
                     height: auto !important;
                     overflow-x: hidden;
                     overflow-y: auto;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: rgb(187, 187, 187);
                 }
                 
                 .add-depense-page {
-                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    background: transparent;
                     min-height: 100vh;
-                    padding: 2rem 0;
+                    padding: 0.5rem 0;
                 }
                 
                 .add-depense-header { display: none; }
                 
-                .add-depense-title {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    margin-bottom: 1rem;
-                    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                }
-                
-                .add-depense-subtitle {
-                    color: #6c757d;
-                    font-size: 1.1rem;
-                    font-weight: 500;
-                    margin-bottom: 2rem;
-                }
-                
-                .modern-back-btn {
-                    background: linear-gradient(45deg, #6c757d, #495057);
-                    border: none;
-                    color: white;
-                    border-radius: 12px;
-                    padding: 10px 20px;
-                    font-weight: 600;
-                    transition: all 0.3s ease;
-                    text-decoration: none;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                
-                .modern-back-btn:hover {
-                    background: linear-gradient(45deg, #5a6268, #343a40);
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-                    color: white;
-                    text-decoration: none;
-                }
-                
                 .form-container {
-                    background: white;
-                    border-radius: 20px;
-                    padding: 2rem;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(10px);
-                    max-width: 800px;
-                    margin: 0 auto;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    padding: 1rem 1.25rem;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    max-width: 900px;
+                    margin: 0 auto 0.75rem auto;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .form-container::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                 }
                 
                 .form-title {
-                    color: #2c3e50;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+                    color: #ffffff;
                     font-weight: 700;
-                    font-size: 1.5rem;
-                    margin-bottom: 2rem;
+                    font-size: 0.95rem;
+                    padding: 0.5rem 0.75rem;
+                    margin: -1rem -1.25rem 1rem -1.25rem;
                     text-align: center;
-                }
-                
-                .form-description {
-                    color: #6c757d;
-                    font-size: 1rem;
-                    margin-bottom: 2rem;
-                    text-align: center;
-                    line-height: 1.6;
+                    border-radius: 8px 8px 0 0;
                 }
                 
                 .modern-add-form {
-                    background: white;
-                    border-radius: 20px;
-                    padding: 2rem;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(10px);
+                    background: transparent;
+                    padding: 0;
                 }
                 
                 .modern-add-form .modern-alert {
-                    border-radius: 12px;
+                    border-radius: 6px;
                     border: none;
-                    padding: 1rem 1.5rem;
-                    margin-bottom: 1.5rem;
+                    padding: 0.75rem 1rem;
+                    margin-bottom: 1rem;
                     font-weight: 500;
+                    font-size: 0.85rem;
                 }
                 
                 .modern-add-form .modern-alert-danger {
-                    background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+                    background: #f8d7da;
                     color: #721c24;
-                    border-left: 4px solid #dc3545;
+                    border-left: 3px solid #dc3545;
                 }
                 
                 .modern-add-form .modern-alert-success {
-                    background: linear-gradient(45deg, #d4edda, #c3e6cb);
+                    background: #d4edda;
                     color: #155724;
-                    border-left: 4px solid #28a745;
+                    border-left: 3px solid #28a745;
                 }
                 
                 .modern-add-form .modern-form-group {
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 1rem;
                 }
                 
                 .modern-add-form .modern-form-label {
-                    color: #495057;
+                    color: #2c3e50;
                     font-weight: 600;
-                    margin-bottom: 0.5rem;
+                    font-size: 0.8rem;
+                    margin-bottom: 0.3rem;
                     display: block;
                 }
                 
                 .modern-add-form .modern-form-input {
                     width: 100%;
-                    border: 2px solid #e9ecef;
-                    border-radius: 12px;
-                    padding: 12px 16px;
-                    font-size: 1rem;
-                    transition: all 0.3s ease;
-                    background: #f8f9fa;
+                    border: 1px solid #d5dbe3;
+                    border-radius: 4px;
+                    padding: 6px 10px;
+                    font-size: 0.85rem;
+                    transition: all 0.2s ease;
+                    background: #ffffff;
                 }
                 
                 .modern-add-form .modern-form-input:focus {
                     outline: none;
-                    border-color: #667eea;
-                    background: white;
-                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                    border-color: #0b5796;
+                    box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
                 }
                 
                 .modern-add-form .modern-form-buttons {
                     display: flex;
-                    gap: 1rem;
+                    gap: 0.5rem;
                     justify-content: center;
-                    margin-top: 2rem;
+                    margin-top: 1rem;
                 }
                 
                 .modern-add-form .modern-form-btn {
-                    border-radius: 12px;
-                    padding: 12px 24px;
+                    border-radius: 4px;
+                    padding: 6px 16px;
                     font-weight: 600;
-                    transition: all 0.3s ease;
+                    font-size: 0.8rem;
+                    transition: all 0.2s ease;
                     border: none;
-                    min-width: 120px;
-                    position: relative;
-                    overflow: hidden;
-                }
-                
-                .modern-add-form .modern-form-btn::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                    transition: left 0.5s;
-                }
-                
-                .modern-add-form .modern-form-btn:hover::before {
-                    left: 100%;
+                    min-width: 100px;
+                    cursor: pointer;
                 }
                 
                 .modern-add-form .modern-form-btn-secondary {
-                    background: linear-gradient(45deg, #6c757d, #495057);
+                    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
                     color: white;
                 }
                 
                 .modern-add-form .modern-form-btn-secondary:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+                    background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
                 }
                 
                 .modern-add-form .modern-form-btn-success {
-                    background: linear-gradient(45deg, #28a745, #20c997);
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%);
                     color: white;
                 }
                 
                 .modern-add-form .modern-form-btn-success:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
                 }
                 
                 .modern-add-form .modern-form-btn:disabled {
                     opacity: 0.7;
                     transform: none;
+                    cursor: not-allowed;
                 }
                 
                 .modern-add-form .modern-spinner {
                     width: 20px;
                     height: 20px;
                     border: 2px solid #f3f3f3;
-                    border-top: 2px solid #28a745;
+                    border-top: 2px solid #2E7D32;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                     display: inline-block;
@@ -472,128 +436,145 @@ export default function AddDepensePage() {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
-                
-                .info-cards { display: none; }
-                
-                .info-card {
-                    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                    border-radius: 15px;
-                    padding: 1.5rem;
-                    border-left: 4px solid #667eea;
-                    transition: all 0.3s ease;
-                }
-                
-                .info-card:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-                }
-                
-                .info-card-icon {
-                    font-size: 2rem;
-                    color: #667eea;
-                    margin-bottom: 1rem;
-                }
-                
-                .info-card-title {
-                    color: #2c3e50;
-                    font-weight: 700;
-                    font-size: 1.1rem;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .info-card-text {
-                    color: #6c757d;
-                    font-size: 0.9rem;
-                    line-height: 1.5;
-                }
 
                 .inline-results-card {
-                    background: white;
-                    border-radius: 12px;
-                    border: 1px solid #000;
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-                    padding: 1rem;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                    padding: 0.75rem;
                     margin-top: 0.75rem;
                 }
                 .inline-table { 
                     width: 100%; 
                     border-collapse: separate;
                     border-spacing: 0;
-                    border: 1px solid #000;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    border-radius: 6px;
+                    overflow: hidden;
                 }
                 .inline-table thead th {
-                    background: #FFB5FC;
-                    color: #2c3e50;
-                    border-bottom: 2px solid #000;
-                    border-right: 1px solid #000;
+                    background: #0b5796;
+                    color: #ffffff;
+                    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+                    border-right: 1px solid rgba(255, 255, 255, 0.2);
                     font-weight: 700;
-                    padding: 0.6rem;
+                    padding: 0.6rem 0.5rem;
                     text-align: left;
+                    font-size: 0.85rem;
                 }
                 .inline-table thead th:last-child {
                     border-right: none;
                 }
                 .inline-table th, .inline-table td { 
-                    padding: 0.6rem; 
-                    border-bottom: 1px solid #000;
-                    border-right: 1px solid #000;
-                    text-align: left; 
+                    padding: 0.6rem 0.5rem; 
+                    border-bottom: 1px solid rgba(213, 219, 227, 0.5);
+                    border-right: 1px solid rgba(213, 219, 227, 0.5);
+                    text-align: left;
+                    font-size: 0.85rem;
                 }
                 .inline-table td:last-child {
                     border-right: none;
                 }
-                .inline-table tbody tr:hover { background: #fafcff; }
+                .inline-table tbody tr {
+                    background: transparent;
+                }
+                .inline-table tbody tr:nth-child(even) {
+                    background: rgba(248, 249, 250, 0.5);
+                }
+                .inline-table tbody tr:hover { 
+                    background: rgba(11, 87, 150, 0.05);
+                }
                 .inline-table tbody tr:last-child td {
                     border-bottom: none;
                 }
                 .inline-table tfoot td { 
-                    background: #FFB5FC; 
-                    color: #2c3e50; 
+                    background: #0b5796; 
+                    color: #ffffff; 
                     font-weight: 700; 
-                    border-top: 2px solid #000;
-                    border-right: 1px solid #000;
-                    padding: 0.6rem;
+                    border-top: 2px solid rgba(255, 255, 255, 0.2);
+                    border-right: 1px solid rgba(255, 255, 255, 0.2);
+                    padding: 0.6rem 0.5rem;
                 }
                 .inline-table tfoot td:last-child {
                     border-right: none;
                 }
 
                 .filter-bar {
-                    background: white;
-                    border: 1px solid #edf0f3;
-                    border-radius: 10px;
+                    background: #ffffff;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    border-radius: 8px;
                     padding: 0.75rem;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
                     display: flex; gap: 0.5rem; align-items: center; justify-content: center;
                     max-width: 600px; margin: 0 auto 0.75rem auto;
                 }
-                .filter-bar input[type="date"], .filter-bar input[type="number"] { border: 1px solid #e2e6ea; border-radius: 8px; padding: 6px 10px; }
-                .filter-bar .btn-search { background: #0d6efd; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-weight: 600; cursor: pointer; }
-                .filter-bar .btn-search:hover { background: #0b5ed7; }
-                .filter-bar .btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
+                .filter-bar input[type="date"], .filter-bar input[type="number"], .filter-bar select { 
+                    border: 1px solid #d5dbe3; 
+                    border-radius: 4px; 
+                    padding: 6px 10px; 
+                    font-size: 0.85rem;
+                }
+                .filter-bar .btn-search { 
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%); 
+                    color: #fff; 
+                    border: none; 
+                    border-radius: 4px; 
+                    padding: 6px 12px; 
+                    font-weight: 600; 
+                    font-size: 0.85rem;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .filter-bar .btn-search:hover { 
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+                }
+                .filter-bar .btn-search:disabled { 
+                    opacity: 0.6; 
+                    cursor: not-allowed;
+                    transform: none;
+                }
 
-                .mode-toggle { display: flex; gap: 8px; justify-content: center; margin: 0.25rem auto 0.5rem auto; }
-                .mode-btn { border: 1px solid #dfe3e7; background: #fff; padding: 6px 10px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-                .mode-btn:hover { background: #f8f9fa; }
-                .mode-btn.active { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+                .mode-toggle { 
+                    display: flex; 
+                    gap: 8px; 
+                    justify-content: center; 
+                    margin: 0.25rem auto 0.5rem auto; 
+                }
+                .mode-btn { 
+                    border: 1px solid #d5dbe3; 
+                    background: #fff; 
+                    padding: 6px 12px; 
+                    border-radius: 4px; 
+                    font-weight: 600; 
+                    font-size: 0.8rem;
+                    cursor: pointer; 
+                    transition: all 0.2s; 
+                }
+                .mode-btn:hover { 
+                    background: #f8f9fa; 
+                }
+                .mode-btn.active { 
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%); 
+                    color: #fff; 
+                    border-color: #0b5796; 
+                }
                 
                 @media (max-width: 768px) {
-                    .add-depense-title {
-                        font-size: 2rem;
-                    }
-                    
                     .modern-add-form .modern-form-buttons {
                         flex-direction: column;
                     }
                     
-                    .add-depense-header,
                     .form-container {
-                        margin: 1rem;
-                        padding: 1.5rem;
+                        margin: 0.5rem;
+                        padding: 0.75rem;
                     }
                     
-                    .info-cards {
-                        grid-template-columns: 1fr;
+                    .filter-bar {
+                        flex-wrap: wrap;
+                        margin: 0.5rem auto 0.75rem auto;
                     }
                 }
             `}</style>
@@ -604,7 +585,9 @@ export default function AddDepensePage() {
 
                     {/* Formulaire */}
                     <div className="form-container">
-                        {/* Titre et description retirés pour garder uniquement le formulaire */}
+                        <div className="form-title">
+                            Ajouter une nouvelle dépense
+                        </div>
 
                         <div className="modern-add-form">
                             {error && (
@@ -729,10 +712,9 @@ export default function AddDepensePage() {
 
                     {/* Section d'affichage des dépenses bureau */}
                     <div className="form-container mt-4">
-                        <h5 className="form-title mb-3" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
-                            <i className="fas fa-list me-2"></i>
+                        <div className="form-title">
                             Filtrer les dépenses bureau
-                        </h5>
+                        </div>
 
                         {/* Boutons Jour/Mois/Année */}
                         <div className="mode-toggle">
@@ -899,10 +881,11 @@ export default function AddDepensePage() {
                                             {depenses.map((depense, index) => {
                                                 const rawText = (depense.libelle || depense.description || '').toUpperCase();
                                                 const isCgmDepense = rawText.includes('[CGM]') || rawText.includes('HONORAIRES REÇU');
-                                               const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
-                                                let libelleText = depense.libellse || depense.description || '-';
-                                                libelleText = libelleText.replace(/^\[CGM\]\s*/, '');
-                                                const originalClientName = depense.beneficiaire || depense.client;
+                                                const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
+                                                let libelleText = depense.libelle || depense.description || '-';
+                                                // Remplacer [CGM] par [PAYÉ PAR CGM] dans l'affichage
+                                                libelleText = libelleText.replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
+                                                const originalClientName = depense.beneficiaire || depense.client || depense.nom_beneficiaire;
                                                 if (originalClientName && !isCgmDepense) {
                                                     libelleText = `${libelleText} (${originalClientName})`;
                                                 }
@@ -936,7 +919,7 @@ export default function AddDepensePage() {
                                         <tfoot>
                                             <tr>
                                                 <td colSpan="3">TOTAL</td>
-                                                <td style={{ color: '#2c3e50', fontWeight: 700 }}>{formatMontant(totalDepenses)}</td>
+                                                <td style={{ color: '#ffffff', fontWeight: 700 }}>{formatMontant(totalDepenses)}</td>
                                                 <td></td>
                                             </tr>
                                         </tfoot>

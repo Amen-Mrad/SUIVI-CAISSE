@@ -30,6 +30,21 @@ export default function ClientCharges() {
     avance: ''
   });
 
+  // #region agent log
+  const logEvent = (payload) => {
+    fetch('http://127.0.0.1:7242/ingest/4c19617c-ffd9-4631-93bb-12be75be63ad', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'run1',
+        ...payload,
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+  };
+  // #endregion
+
   useEffect(() => {
     fetchClientCharges();
   }, [id, annee]);
@@ -174,6 +189,18 @@ export default function ClientCharges() {
           return a.mois - b.mois;
         });
         setCharges(sortedCharges);
+
+        // #region agent log
+        logEvent({
+          hypothesisId: 'H2',
+          location: 'ClientCharges.js:fetchClientCharges',
+          message: 'Charges fetched',
+          data: {
+            count: sortedCharges.length,
+            sampleIds: sortedCharges.slice(0, 5).map(c => c.id)
+          }
+        });
+        // #endregion
 
         // Initialiser chargesWithRetraitCgm depuis les données de la base de données
         const retraitProcessedSet = new Set();
@@ -478,6 +505,14 @@ export default function ClientCharges() {
 
   const handleDeleteCharge = async (chargeId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette charge ?')) {
+      // #region agent log
+      logEvent({
+        hypothesisId: 'H1',
+        location: 'ClientCharges.js:handleDeleteCharge:start',
+        message: 'Delete requested',
+        data: { chargeId, chargesCount: charges.length }
+      });
+      // #endregion
       try {
         const response = await fetch(`/api/charges-mensuelles/${chargeId}`, {
           method: 'DELETE',
@@ -486,6 +521,14 @@ export default function ClientCharges() {
         const data = await response.json();
 
         if (data.success) {
+          // #region agent log
+          logEvent({
+            hypothesisId: 'H2',
+            location: 'ClientCharges.js:handleDeleteCharge:success',
+            message: 'Backend delete success',
+            data: { chargeId, success: data.success }
+          });
+          // #endregion
           setSuccessMessage('Charge supprimée avec succès !');
           fetchClientCharges();
           // Mettre à jour la caisse si c'était un honoraire reçu
@@ -879,39 +922,32 @@ export default function ClientCharges() {
           overflow-x: hidden; 
           overflow-y: auto; 
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: rgb(187, 187, 187);
         }
         
         .client-charges-page { 
-          background:rgb(173, 69, 196);
+          background: transparent;
           min-height: 100vh; 
-          padding: 2rem 0;
+          padding: 0.25rem 0;
           position: relative;
-          overflow: hidden;
         }
         
-        .client-charges-page::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-          opacity: 0.3;
-          pointer-events: none;
-        }
+        .client-charges-page::before { display: none; }
         
         
         .charges-header { 
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border-radius: 25px; 
-          padding: 3rem; 
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
-          margin-bottom: 2rem;
+          background: #ffffff;
+          border-radius: 12px; 
+          padding: 1.25rem 1.5rem; 
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+          margin-bottom: 1.25rem;
           position: relative;
           overflow: hidden;
+          border: 1px solid #d5dbe3;
           animation: slideInDown 0.8s ease-out;
+          max-width: 1100px;
+          margin-left: auto;
+          margin-right: auto;
         }
         
         .charges-header::before {
@@ -921,7 +957,7 @@ export default function ClientCharges() {
           left: 0;
           right: 0;
           height: 4px;
-          background: #667eea;
+          background: #0b5796;
         }
         
         @keyframes slideInDown {
@@ -931,15 +967,14 @@ export default function ClientCharges() {
         
         
         .charges-title { 
-          background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+          background: linear-gradient(45deg, #0b5796, #0d6efd);
           -webkit-background-clip: text; 
           -webkit-text-fill-color: transparent; 
           background-clip: text; 
-          font-size: 3rem; 
+          font-size: 2.4rem; 
           font-weight: 900; 
-          margin-bottom: 1rem; 
-          text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          animation: titleGlow 2s ease-in-out infinite alternate;
+          margin-bottom: 0.75rem; 
+          text-shadow: none;
           position: relative;
         }
         
@@ -949,10 +984,10 @@ export default function ClientCharges() {
         }
         
         .charges-subtitle { 
-          color: #6c757d; 
-          font-size: 1.2rem; 
-          font-weight: 500; 
-          margin-bottom: 2rem;
+          color: #4a5568; 
+          font-size: 1rem; 
+          font-weight: 600; 
+          margin-bottom: 1rem;
           opacity: 0.9;
         }
         
@@ -997,14 +1032,29 @@ export default function ClientCharges() {
         }
         
         .client-info-card { 
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border-radius: 10px; 
-          padding: 0.75rem 1rem; 
-          margin-bottom: 1rem; 
-          border: 1px solid rgba(33, 150, 243, 0.15);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          background: #ffffff;
+          border-radius: 6px; 
+          padding: 0.3rem 0.75rem; 
+          margin-bottom: 0.4rem; 
+          margin-top: 0;
+          border: 1px solid rgba(213, 219, 227, 0.8);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
           animation: slideInUp 0.8s ease-out 0.2s both;
+          max-width: 900px;
+          margin-left: auto;
+          margin-right: auto;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .client-info-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: #0b5796;
         }
         
         @keyframes slideInUp {
@@ -1016,29 +1066,29 @@ export default function ClientCharges() {
           display: flex;
           align-items: center;
           justify-content: flex-start;
-          gap: 1.5rem;
+          gap: 0.75rem;
           flex-wrap: wrap;
         }
         
         .client-info-text {
           color: #2c3e50;
           font-weight: 600;
-          font-size: 0.95rem;
+          font-size: 0.8rem;
           display: flex;
           align-items: center;
         }
         
         .client-info-text i {
           color: #667eea;
-          margin-right: 0.5rem;
-          font-size: 0.9rem;
+          margin-right: 0.3rem;
+          font-size: 0.75rem;
         }
         
         .client-username {
           color: #6c757d;
           font-weight: 500;
-          font-size: 0.85rem;
-          margin-left: 0.5rem;
+          font-size: 0.75rem;
+          margin-left: 0.3rem;
         }
         
         .client-info-year {
@@ -1046,64 +1096,228 @@ export default function ClientCharges() {
           align-items: center;
           color: #495057;
           font-weight: 600;
-          font-size: 0.85rem;
+          font-size: 0.75rem;
           margin-left: auto;
+          gap: 0.3rem;
         }
         
         .client-info-year label {
           margin-bottom: 0;
           color: #495057;
-          margin-right: 0.5rem;
+          margin-right: 0.3rem;
+        }
+        
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(5px);
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+        }
+        
+        .add-charge-form-container {
+          background: #ffffff;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(213, 219, 227, 0.8);
+          max-width: 600px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          position: relative;
+          animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        .add-charge-form-header {
+          background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+          color: #ffffff;
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 1rem;
+          margin-bottom: 1rem;
+          text-align: center;
+        }
+        
+        .add-charge-form {
+          padding: 0;
+        }
+        
+        .add-charge-form-row {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+        }
+        
+        .add-charge-form-field {
+          flex: 1;
+          min-width: 150px;
+        }
+        
+        .add-charge-form-label {
+          display: block;
+          color: #2c3e50;
+          font-weight: 500;
+          font-size: 0.85rem;
+          margin-bottom: 0.4rem;
+        }
+        
+        .add-charge-form-input,
+        .add-charge-form-select {
+          width: 100%;
+          border: 1px solid #d5dbe3;
+          border-radius: 6px;
+          padding: 8px 12px;
+          font-size: 0.9rem;
+          transition: all 0.2s ease;
+          background: #ffffff;
+        }
+        
+        .add-charge-form-input:focus,
+        .add-charge-form-select:focus {
+          outline: none;
+          border-color: #0b5796;
+          box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
+        }
+        
+        .add-charge-form-input-disabled {
+          background: #f4f6f8;
+          color: #6c757d;
+          cursor: not-allowed;
+        }
+        
+        .add-charge-form-input-custom {
+          margin-top: 0.3rem;
+        }
+        
+        .add-charge-form-actions {
+          display: flex;
+          gap: 0.75rem;
+          justify-content: center;
+          margin-top: 1.5rem;
+        }
+        
+        .add-charge-form-btn-submit {
+          background: #2E7D32;
+          border: none;
+          color: white;
+          border-radius: 6px;
+          padding: 10px 24px;
+          font-weight: 500;
+          font-size: 0.95rem;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          flex: 1;
+          max-width: 200px;
+        }
+        
+        .add-charge-form-btn-submit:hover:not(:disabled) {
+          background: #256528;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+        
+        .add-charge-form-btn-submit:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
+        .add-charge-form-btn-cancel {
+          background: #6c757d;
+          border: none;
+          color: white;
+          border-radius: 6px;
+          padding: 10px 24px;
+          font-weight: 500;
+          font-size: 0.95rem;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          flex: 1;
+          max-width: 200px;
+        }
+        
+        .add-charge-form-btn-cancel:hover {
+          background: #5a6268;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
         }
         
         .add-charge-btn {
-          background: linear-gradient(45deg, #4caf50, #45a049);
+          background: #0b5796;
           border: none;
           color: white;
-          border-radius: 20px;
-          padding: 15px 30px;
-          font-weight: 700;
-          font-size: 1.1rem;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 4px;
+          padding: 6px 10px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          transition: all 0.12s ease;
+          border: 1px solid transparent;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
+          box-shadow: none;
+          letter-spacing: 0.01px;
+          cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin: 0 auto;
+          gap: 6px;
+          margin: 0;
         }
         
-        .add-charge-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-          transition: left 0.8s;
+        .add-charge-btn.add-charge-btn-green {
+          background: #2E7D32;
+          border-color: #2E7D32;
         }
         
-        .add-charge-btn:hover::before {
-          left: 100%;
+        .add-charge-btn.add-charge-btn-green:hover {
+          background: #256528;
+          border-color: #256528;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 14px rgba(46, 125, 50, 0.2);
         }
         
         .add-charge-btn:hover {
-          transform: translateY(-4px) scale(1.05);
-          box-shadow: 0 20px 40px rgba(76, 175, 80, 0.4);
-          background: linear-gradient(45deg, #45a049, #4caf50);
+          background: #0a4c83;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 14px rgba(11, 87, 150, 0.2);
+        }
+        
+        .add-charge-btn:active {
+          transform: translateY(-2px) scale(0.98);
         }
         
         .charges-table-container {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border-radius: 25px;
-          padding: 2rem;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
+          background: #ffffff;
+          border-radius: 6px;
+          padding: 0.25rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
           animation: slideInUp 0.8s ease-out 0.4s both;
           position: relative;
           overflow: hidden;
+          border: 1px solid rgba(213, 219, 227, 0.8);
+          max-width: 900px;
+          margin-left: auto;
+          margin-right: auto;
         }
         
         .charges-table-container::before {
@@ -1112,57 +1326,74 @@ export default function ClientCharges() {
           top: 0;
           left: 0;
           right: 0;
-          height: 4px;
-          background: #4caf50;
+          height: 2px;
+          background: #0b5796;
+        }
+        
+        .charges-actions {
+          background: transparent;
+          border-radius: 0;
+          padding: 0.35rem 0;
+          box-shadow: none;
+          border: none;
+          backdrop-filter: none;
+          margin-bottom: 0.35rem;
+          position: absolute;
+          top: 1px;
+          right: 0;
+          overflow: visible;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 0.35rem;
+          flex-wrap: wrap;
+          width: auto;
+          z-index: 10;
         }
         
         .charges-table-title {
           color: #2c3e50;
-          font-weight: 800;
-          font-size: 1.6rem;
-          margin-bottom: 2rem;
+          font-weight: 700;
+          font-size: 0.9rem;
+          margin: 0 0 0.2rem 0;
           text-align: center;
-          background: linear-gradient(45deg, #2c3e50, #34495e);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
         }
         
         .charges-count-badge {
-          background: linear-gradient(45deg, #2196f3, #1976d2);
+          background: linear-gradient(45deg, #0b5796, #0d6efd);
           color: white;
           padding: 8px 16px;
           border-radius: 20px;
           font-weight: 600;
           font-size: 0.9rem;
           margin-left: 10px;
-          box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+          box-shadow: 0 4px 10px rgba(11, 87, 150, 0.25);
         }
         
         .modern-table {
           width: 100%;
           border-collapse: separate;
           border-spacing: 0;
-          border-radius: 15px;
+          border-radius: 4px;
           overflow: hidden;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-          border: 1px solid #000;
+          box-shadow: none;
+          border: 1px solid rgba(213, 219, 227, 0.8);
         }
         
         .modern-table thead {
-          background: #FFB5FC;
+          background: #0b5796;
         }
         
         .modern-table th {
-          color: #2c3e50;
+          color: #ffffff;
           font-weight: 700;
-          padding: 1rem;
+          padding: 0.35rem 0.4rem;
           text-align: center;
-          border-bottom: 2px solid #000;
-          border-right: 1px solid #000;
-          font-size: 0.9rem;
+          border-bottom: 1px solid rgba(213, 219, 227, 0.8);
+          border-right: 1px solid rgba(213, 219, 227, 0.8);
+          font-size: 0.75rem;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.2px;
         }
         
         .modern-table th:last-child {
@@ -1170,29 +1401,35 @@ export default function ClientCharges() {
         }
         
         .modern-table tbody tr {
-          background: rgba(255, 255, 255, 0.9);
-          transition: all 0.3s ease;
+          background: #ffffff;
+          transition: all 0.2s ease;
         }
         
         .modern-table tbody tr:nth-child(even) {
-          background: rgba(248, 249, 250, 0.9);
+          background: #f8fafc;
         }
         
         .modern-table tbody tr:hover {
-          background: rgba(33, 150, 243, 0.05);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          background: #f0f6ff;
+          box-shadow: none;
         }
         
         .modern-table td {
-          padding: 1rem;
+          padding: 0.35rem 0.4rem;
           text-align: center;
-          border-bottom: 1px solid #000;
-          border-right: 1px solid #000;
+          border-bottom: 1px solid rgba(227, 231, 238, 0.8);
+          font-size: 0.8rem;
+          border-right: 1px solid rgba(227, 231, 238, 0.8);
           font-weight: 500;
         }
         
         .modern-table td:last-child {
           border-right: none;
+          background: inherit !important;
+        }
+        
+        .modern-table td:last-child > div {
+          background: transparent !important;
         }
         
         .modern-table tbody tr:last-child td {
@@ -1200,18 +1437,19 @@ export default function ClientCharges() {
         }
         
         .modern-table tfoot {
-          background: #FFB5FC !important;
+          background: #f0f6ff !important;
         }
         
         .modern-table tfoot th,
         .modern-table tfoot td {
-          background: #FFB5FC !important;
-          color: #2c3e50 !important;
+          background: #f0f6ff !important;
+          color: #0b5796 !important;
           font-weight: 700;
-          padding: 1rem;
-          border-top: 2px solid #000;
-          border-right: 1px solid #000;
+          padding: 0.35rem 0.4rem;
+          border-top: 1px solid rgba(213, 219, 227, 0.8);
+          border-right: 1px solid rgba(213, 219, 227, 0.8);
           text-align: center;
+          font-size: 0.8rem;
         }
         
         .modern-table tfoot th:last-child,
@@ -1329,6 +1567,12 @@ export default function ClientCharges() {
           100% { transform: rotate(360deg); }
         }
         
+        .container {
+          margin-top: 0;
+          padding-top: 0;
+          position: relative;
+        }
+        
         /* Animations d'entrée */
         .container > * {
           animation: fadeInUp 0.8s ease-out both;
@@ -1372,6 +1616,14 @@ export default function ClientCharges() {
           .modern-table td {
             padding: 0.75rem 0.5rem;
             white-space: nowrap;
+          }
+          
+          .add-charge-form-row {
+            flex-direction: column;
+          }
+          
+          .add-charge-form-field {
+            min-width: 100%;
           }
         }
         
@@ -1455,17 +1707,41 @@ export default function ClientCharges() {
       `}</style>
 
       <div className="container">
+        {/* Actions à droite */}
+        <div className="charges-actions">
+          <button
+            className="add-charge-btn add-charge-btn-green"
+            onClick={() => {
+              setIsCarteBancaire(false);
+              setShowForm(true);
+            }}
+          >
+            <i className="fas fa-plus"></i>
+            Ajouter une charge
+          </button>
+          <button
+            className="add-charge-btn"
+            onClick={() => {
+              setIsCarteBancaire(true);
+              setShowForm(true);
+            }}
+          >
+            <i className="fas fa-credit-card"></i>
+            Carte bancaire
+          </button>
+        </div>
+
         {/* Informations du client - Résumé compact */}
         <div className="client-info-card">
           <div className="client-info-summary">
-               <div className="client-info-text">
+            <div className="client-info-text">
               <i className="fas fa-phone"></i>
               <span>{client.username}</span>
             </div>
             <div className="client-info-text">
               <i className="fas fa-user"></i>
               <span>{client?.nom} {client?.prenom}</span>
-              
+
             </div>
 
             <div className="client-info-year">
@@ -1479,14 +1755,14 @@ export default function ClientCharges() {
                 onChange={(e) => setAnnee(parseInt(e.target.value))}
                 style={{
                   border: '1px solid #e9ecef',
-                  borderRadius: '6px',
-                  padding: '4px 8px',
-                  fontSize: '0.85rem',
+                  borderRadius: '4px',
+                  padding: '2px 6px',
+                  fontSize: '0.75rem',
                   fontWeight: '600',
                   color: '#495057',
                   background: '#f8f9fa',
                   transition: 'all 0.3s ease',
-                  minWidth: '80px'
+                  minWidth: '70px'
                 }}
               >
                 {Array.from({ length: 5 }, (_, i) => {
@@ -1508,14 +1784,21 @@ export default function ClientCharges() {
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             border: 'none',
-            borderRadius: '15px',
-            padding: '1rem 1.5rem',
-            marginBottom: '2rem',
-            boxShadow: '0 10px 25px rgba(76, 175, 80, 0.3)'
+            borderRadius: '8px',
+            padding: '0.5rem 1rem',
+            marginBottom: '1rem',
+            fontSize: '0.875rem',
+            boxShadow: '0 4px 12px rgba(76, 175, 80, 0.2)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}>
-            <i className="fas fa-check-circle me-2"></i>
-            {successMessage}
-            <button type="button" className="btn-close btn-close-white" onClick={() => setSuccessMessage('')}></button>
+            <i className="fas fa-check-circle" style={{ fontSize: '0.875rem', flexShrink: 0 }}></i>
+            <span style={{ flex: 1, minWidth: 0 }}>{successMessage}</span>
+            <button type="button" className="btn-close btn-close-white" onClick={() => setSuccessMessage('')} style={{ fontSize: '0.75rem', flexShrink: 0 }}></button>
           </div>
         )}
 
@@ -1525,66 +1808,46 @@ export default function ClientCharges() {
             background: 'linear-gradient(45deg, #f44336, #d32f2f)',
             color: 'white',
             border: 'none',
-            borderRadius: '15px',
-            padding: '1rem 1.5rem',
-            marginBottom: '2rem',
-            boxShadow: '0 10px 25px rgba(244, 67, 54, 0.3)'
+            borderRadius: '8px',
+            padding: '0.5rem 1rem',
+            marginBottom: '1rem',
+            fontSize: '0.875rem',
+            boxShadow: '0 4px 12px rgba(244, 67, 54, 0.2)'
           }}>
-            <i className="fas fa-exclamation-circle me-2"></i>
+            <i className="fas fa-exclamation-circle me-2" style={{ fontSize: '0.875rem' }}></i>
             {errorMessage}
-            <button type="button" className="btn-close btn-close-white" onClick={() => setErrorMessage('')}></button>
+            <button type="button" className="btn-close btn-close-white" onClick={() => setErrorMessage('')} style={{ fontSize: '0.75rem' }}></button>
           </div>
         )}
 
-        {/* Boutons pour ajouter une charge */}
-        <div className="text-center mb-4" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button
-            className="add-charge-btn"
-            onClick={() => {
-              setIsCarteBancaire(false);
-              setShowForm(true);
-            }}
-          >
-            <i className="fas fa-plus"></i>
-            Ajouter une charge
-          </button>
-          <button
-            className="add-charge-btn"
-            style={{ background: 'linear-gradient(45deg, #667eea, #764ba2)' }}
-            onClick={() => {
-              setIsCarteBancaire(true);
-              setShowForm(true);
-            }}
-          >
-            <i className="fas fa-credit-card"></i>
-            Carte bancaire
-          </button>
-        </div>
 
-        {/* Formulaire d'ajout de charge */}
+        {/* Formulaire d'ajout de charge - Modal */}
         {showForm && (
-          <div className="card mb-4">
-            <div className="card-body">
-              <h5 className="card-title">
+          <div className="modal-overlay" onClick={() => {
+            setShowForm(false);
+            setIsCarteBancaire(false);
+          }}>
+            <div className="add-charge-form-container" onClick={(e) => e.stopPropagation()}>
+              <div className="add-charge-form-header">
                 {isCarteBancaire ? 'Ajouter une charge (Carte bancaire)' : 'Ajouter une nouvelle charge'}
-              </h5>
-              <form onSubmit={handleSubmit}>
-                <div className="row">
-                  <div className="col-md-3">
-                    <label className="form-label">Date</label>
+              </div>
+              <form onSubmit={handleSubmit} className="add-charge-form">
+                <div className="add-charge-form-row">
+                  <div className="add-charge-form-field">
+                    <label className="add-charge-form-label">Date</label>
                     <input
                       type="datetime-local"
-                      className="form-control"
+                      className="add-charge-form-input"
                       name="date"
                       value={formData.date}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-                  <div className="col-md-3">
-                    <label className="form-label">Libellé</label>
+                  <div className="add-charge-form-field">
+                    <label className="add-charge-form-label">Libellé</label>
                     <select
-                      className="form-select"
+                      className="add-charge-form-select"
                       name="libelle"
                       value={formData.libelle}
                       onChange={handleLibelleChange}
@@ -1608,7 +1871,7 @@ export default function ClientCharges() {
                     {(formData.libelle === 'TAPEZ MANUELLE' || (formData.libelle !== '' && formData.libelle !== 'Sélectionner...')) && (
                       <input
                         type="text"
-                        className="form-control mt-2"
+                        className="add-charge-form-input add-charge-form-input-custom"
                         name="libelleCustom"
                         value={formData.libelleCustom}
                         onChange={handleInputChange}
@@ -1616,12 +1879,12 @@ export default function ClientCharges() {
                       />
                     )}
                   </div>
-                  <div className="col-md-3">
-                    <label className="form-label">Montant</label>
+                  <div className="add-charge-form-field">
+                    <label className="add-charge-form-label">Montant</label>
                     <input
                       type="number"
                       step="0.001"
-                      className={`form-control ${isMontantBlocked(formData.libelle) ? 'bg-light' : ''}`}
+                      className={`add-charge-form-input ${isMontantBlocked(formData.libelle) ? 'add-charge-form-input-disabled' : ''}`}
                       name="montant"
                       value={isMontantBlocked(formData.libelle) ? '0' : formData.montant}
                       onChange={handleInputChange}
@@ -1630,12 +1893,12 @@ export default function ClientCharges() {
                       required={!isMontantBlocked(formData.libelle)}
                     />
                   </div>
-                  <div className="col-md-3">
-                    <label className="form-label">Avance</label>
+                  <div className="add-charge-form-field">
+                    <label className="add-charge-form-label">Avance</label>
                     <input
                       type="number"
                       step="0.001"
-                      className={`form-control ${isAvanceBlocked(formData.libelle) ? 'bg-light' : ''}`}
+                      className={`add-charge-form-input ${isAvanceBlocked(formData.libelle) ? 'add-charge-form-input-disabled' : ''}`}
                       name="avance"
                       value={isAvanceBlocked(formData.libelle) ? '0' : formData.avance}
                       onChange={handleInputChange}
@@ -1645,13 +1908,13 @@ export default function ClientCharges() {
                     />
                   </div>
                 </div>
-                <div className="mt-3">
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                <div className="add-charge-form-actions">
+                  <button type="submit" className="add-charge-form-btn-submit" disabled={loading}>
                     {loading ? 'Ajout en cours...' : 'Ajouter la charge'}
                   </button>
                   <button
                     type="button"
-                    className="btn btn-secondary ms-2"
+                    className="add-charge-form-btn-cancel"
                     onClick={() => {
                       setShowForm(false);
                       setIsCarteBancaire(false);
@@ -1773,11 +2036,7 @@ export default function ClientCharges() {
 
         {/* Tableau des charges */}
         <div className="charges-table-container">
-          <h5 className="charges-table-title">
-            <i className="fas fa-table me-2"></i>
-            Tableau des charges
 
-          </h5>
 
           {charges.length === 0 ? (
             <div className="alert alert-info" style={{
@@ -1844,9 +2103,7 @@ export default function ClientCharges() {
                         style={{
                           backgroundColor: charge.isPrecedent
                             ? 'rgba(0, 123, 255, 0.1)' // Bleu clair pour solde reporté
-                            : parseFloat(charge.montant) === 0 && parseFloat(charge.avance || 0) > 0
-                              ? 'rgba(255, 255, 0, 0.2)' // Jaune pour avances
-                              : 'transparent',
+                            : 'transparent',
                           cursor: charge.isPrecedent ? 'default' : 'pointer',
                           transition: 'background-color 0.2s ease'
                         }}
@@ -1875,28 +2132,25 @@ export default function ClientCharges() {
                         }}
                         onMouseLeave={(e) => {
                           if (!charge.isPrecedent) {
-                            const originalBg = parseFloat(charge.montant) === 0 && parseFloat(charge.avance || 0) > 0
-                              ? 'rgba(255, 255, 0, 0.2)'
-                              : 'transparent';
-                            e.currentTarget.style.backgroundColor = originalBg;
+                            e.currentTarget.style.backgroundColor = 'transparent';
                           }
                         }}
                       >
                         <td>
-  {charge.date ? (() => {
-    const date = new Date(charge.date);
-    const year = date.getFullYear(); // getFullYear() au lieu de getUTCFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0'); // getDate() au lieu de getUTCDate()
-    return `${day}/${month}/${year}`;
-  })() : (() => {
-    const date = new Date(charge.date_creation);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${day}/${month}/${year}`;
-  })()}
-</td>
+                          {charge.date ? (() => {
+                            const date = new Date(charge.date);
+                            const year = date.getFullYear(); // getFullYear() au lieu de getUTCFullYear()
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0'); // getDate() au lieu de getUTCDate()
+                            return `${day}/${month}/${year}`;
+                          })() : (() => {
+                            const date = new Date(charge.date_creation);
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            return `${day}/${month}/${year}`;
+                          })()}
+                        </td>
                         <td>{charge.libelle || '-'}</td>
                         <td>{renderMontantGreen(charge.montant)}</td>
                         <td>{renderAvanceRed(charge.avance || 0)}</td>
@@ -2022,7 +2276,7 @@ export default function ClientCharges() {
                                     return (
                                       <button
                                         type="button"
-                                        className="action-btn action-btn-warning action-btn-sm"
+                                        className="action-btn action-btn-success action-btn-sm"
                                         onClick={() => handlePrintCharge(charge)}
                                         title="Imprimer le reçu"
                                         style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', minWidth: '60px' }}
@@ -2074,7 +2328,6 @@ export default function ClientCharges() {
           )}
         </div>
       </div>
-
     </div>
   );
 }

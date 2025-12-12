@@ -1,0 +1,352 @@
+/* ============================================
+   CSS GLOBAL POUR RESPONSIVE DESIGN
+   ============================================ */
+
+/* Variables CSS pour les breakpoints */
+:root {
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+}
+
+/* Reset et base */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Container responsive */
+.container,
+.container-fluid {
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tables responsive */
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Images responsive */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Formulaires responsive */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="password"],
+input[type="email"],
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Boutons responsive */
+button,
+.btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   MEDIA QUERIES - MOBILE FIRST
+   ============================================ */
+
+/* Extra Small devices (phones, 480px and down) */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Réduire les paddings */
+  .card,
+  .card-body {
+    padding: 0.75rem !important;
+  }
+
+  /* Titres plus petits */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  /* Boutons pleine largeur sur mobile */
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Tables - scroll horizontal */
+  table {
+    font-size: 0.75rem;
+  }
+
+  table th,
+  table td {
+    padding: 0.4rem 0.3rem !important;
+    white-space: nowrap;
+  }
+
+  /* Formulaires */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  /* Navigation */
+  .navbar-nav {
+    flex-direction: column;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 481px) and (max-width: 576px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 577px) and (max-width: 768px) {
+  body {
+    font-size: 15px;
+  }
+
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  /* Tables - meilleure lisibilité */
+  table {
+    font-size: 0.85rem;
+  }
+
+  table th,
+  table td {
+    padding: 0.5rem 0.4rem;
+  }
+
+  /* Grilles - 2 colonnes max */
+  .row {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+
+  .row > * {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 769px) and (max-width: 992px) {
+  body {
+    font-size: 15px;
+  }
+
+  /* Tables - taille normale */
+  table {
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 993px) {
+  body {
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* ============================================
+   ORIENTATION SPECIFIC
+   ============================================ */
+
+/* Portrait (mobile) */
+@media (orientation: portrait) and (max-width: 768px) {
+  /* Optimiser pour portrait */
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* Landscape (tablette/mobile) */
+@media (orientation: landscape) and (max-width: 992px) {
+  /* Optimiser pour landscape */
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  /* Tables - plus de colonnes visibles */
+  table {
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================
+   UTILITAIRES RESPONSIVE
+   ============================================ */
+
+/* Masquer sur mobile */
+@media (max-width: 768px) {
+  .d-none-mobile {
+    display: none !important;
+  }
+}
+
+/* Masquer sur desktop */
+@media (min-width: 769px) {
+  .d-none-desktop {
+    display: none !important;
+  }
+}
+
+/* Texte responsive */
+.text-responsive {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+/* Espacement responsive */
+.mt-responsive {
+  margin-top: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.mb-responsive {
+  margin-bottom: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.p-responsive {
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+/* ============================================
+   AMÉLIORATIONS SPÉCIFIQUES
+   ============================================ */
+
+/* Scrollbar personnalisée pour mobile */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+/* Touch targets - minimum 44x44px pour mobile */
+@media (max-width: 768px) {
+  button,
+  .btn,
+  a.btn,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 16px;
+  }
+}
+
+/* Focus visible pour accessibilité */
+*:focus-visible {
+  outline: 2px solid #0b5796;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+}
+

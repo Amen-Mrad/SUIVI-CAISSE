@@ -40,79 +40,69 @@ export default function AllEtatClientPage() {
     return (
         <>
             <style jsx global>{`
-                body {
+                body, html {
+                    background: rgb(187, 187, 187) !important;
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     margin: 0;
                     padding: 0;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     min-height: 100vh;
                 }
                 
                 .etat-client-page {
+                    background: transparent;
                     min-height: 100vh;
-                    padding: 2rem;
+                    padding: 0.5rem 0;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                 }
                 
                 .etat-client-container {
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(20px);
-                    border-radius: 20px;
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                    padding: 3rem;
-                    max-width: 600px;
+                    background: #ffffff;
+                    border-radius: 12px;
+                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+                    border: 1px solid #d5dbe3;
+                    padding: 1.5rem 2rem;
+                    max-width: 1100px;
                     width: 100%;
-                    margin-bottom: 2rem;
+                    margin: 0 auto;
                     position: relative;
-                    overflow: hidden;
-                }
-                
-                .etat-client-container::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 4px;
-                    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
                 }
                 
                 .etat-client-header {
                     text-align: center;
-                    margin-bottom: 2rem;
+                    margin-bottom: 1.5rem;
                     padding-bottom: 1rem;
                     border-bottom: 2px solid #e9ecef;
                 }
                 
                 .etat-client-title {
-                    font-size: 2rem;
-                    font-weight: 800;
-                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
+                    font-size: 1.8rem;
+                    font-weight: 800;
                     margin-bottom: 0.5rem;
                 }
                 
                 .etat-client-subtitle {
                     color: #6c757d;
-                    font-size: 1.1rem;
+                    font-size: 1rem;
                     font-weight: 500;
                 }
                 
                 .etat-client-info {
-                    background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
-                    border-radius: 15px;
-                    padding: 1.5rem;
-                    margin-bottom: 2rem;
-                    border-left: 4px solid #667eea;
+                    background: #f4f6f8;
+                    border-radius: 8px;
+                    padding: 1rem 1.25rem;
+                    margin-bottom: 1.5rem;
+                    border-left: 4px solid #0b5796;
                 }
                 
                 .info-text {
                     color: #495057;
-                    font-size: 1rem;
+                    font-size: 0.95rem;
                     line-height: 1.6;
                     margin: 0;
                 }
@@ -125,39 +115,43 @@ export default function AllEtatClientPage() {
                 }
                 
                 .action-btn {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                     border: none;
                     color: white;
-                    border-radius: 15px;
-                    padding: 12px 24px;
+                    border-radius: 8px;
+                    padding: 10px 20px;
                     font-weight: 600;
                     cursor: pointer;
-                    transition: all 0.3s ease;
+                    transition: all 0.2s ease;
                     display: flex;
                     align-items: center;
                     gap: 8px;
+                    font-size: 0.9rem;
                 }
                 
                 .action-btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+                    background: linear-gradient(135deg, #0a4c83 0%, #0c5fa9 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 14px rgba(11, 87, 150, 0.3);
                 }
                 
                 .action-btn-success {
-                    background: linear-gradient(45deg, #4caf50, #45a049);
+                    background: linear-gradient(135deg, #2E7D32 0%, #256528 100%);
                 }
                 
                 .action-btn-success:hover {
-                    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+                    background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+                    box-shadow: 0 6px 14px rgba(46, 125, 50, 0.3);
                 }
                 
                 @media (max-width: 768px) {
                     .etat-client-page {
-                        padding: 1rem;
+                        padding: 0.5rem;
                     }
                     
                     .etat-client-container {
-                        padding: 2rem;
+                        padding: 1.25rem;
+                        margin: 0 0.5rem;
                     }
                     
                     .etat-client-title {

@@ -55,63 +55,98 @@ export default function CartesBancairesPage() {
                     height: auto !important;
                     overflow-x: hidden;
                     overflow-y: auto;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: rgb(187, 187, 187);
                 }
                 
                 .cartes-bancaires-page {
-                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    background: transparent;
                     min-height: 100vh;
-                    padding: 2rem 0;
+                    padding: 0.5rem 0;
                 }
                 
                 .cartes-header {
-                    background: white;
-                    border-radius: 20px;
-                    padding: 2rem;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                    margin-bottom: 2rem;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    padding: 1rem 1.25rem;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    margin-bottom: 0.75rem;
                     text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                    max-width: 1100px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                
+                .cartes-header::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                 }
                 
                 .cartes-title {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
-                    font-size: 2.5rem;
+                    font-size: 1.5rem;
                     font-weight: 800;
                     margin-bottom: 0.5rem;
                 }
                 
                 .cartes-subtitle {
                     color: #6c757d;
-                    font-size: 1.1rem;
+                    font-size: 0.9rem;
                     font-weight: 500;
                 }
                 
                 .cartes-table-container {
-                    background: white;
-                    border-radius: 12px;
-                    border: 1px solid #000;
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-                    padding: 1rem;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                    padding: 0.75rem 1rem;
                     overflow-x: auto;
+                    position: relative;
+                    max-width: 1100px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                
+                .cartes-table-container::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
                 }
                 
                 .inline-table {
                     width: 100%;
                     border-collapse: separate;
                     border-spacing: 0;
-                    border: 1px solid #000;
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    border-radius: 6px;
+                    overflow: hidden;
                 }
                 
                 .inline-table thead th {
-                    background: #FFB5FC;
-                    color: #2c3e50;
-                    border-bottom: 2px solid #000;
-                    border-right: 1px solid #000;
+                    background: #0b5796;
+                    color: #ffffff;
+                    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+                    border-right: 1px solid rgba(255, 255, 255, 0.2);
                     font-weight: 700;
-                    padding: 0.6rem;
+                    padding: 0.6rem 0.5rem;
                     text-align: left;
+                    font-size: 0.85rem;
                 }
                 
                 .inline-table thead th:last-child {
@@ -119,18 +154,27 @@ export default function CartesBancairesPage() {
                 }
                 
                 .inline-table th, .inline-table td {
-                    padding: 0.6rem;
-                    border-bottom: 1px solid #000;
-                    border-right: 1px solid #000;
+                    padding: 0.6rem 0.5rem;
+                    border-bottom: 1px solid rgba(213, 219, 227, 0.5);
+                    border-right: 1px solid rgba(213, 219, 227, 0.5);
                     text-align: left;
+                    font-size: 0.85rem;
                 }
                 
                 .inline-table td:last-child {
                     border-right: none;
                 }
                 
+                .inline-table tbody tr {
+                    background: transparent;
+                }
+                
+                .inline-table tbody tr:nth-child(even) {
+                    background: rgba(248, 249, 250, 0.5);
+                }
+                
                 .inline-table tbody tr:hover {
-                    background: #fafcff;
+                    background: rgba(11, 87, 150, 0.05);
                 }
                 
                 .inline-table tbody tr:last-child td {
@@ -138,12 +182,12 @@ export default function CartesBancairesPage() {
                 }
                 
                 .inline-table tfoot td {
-                    background: #FFB5FC;
-                    color: #2c3e50;
+                    background: #0b5796;
+                    color: #ffffff;
                     font-weight: 700;
-                    border-top: 2px solid #000;
-                    border-right: 1px solid #000;
-                    padding: 0.6rem;
+                    border-top: 2px solid rgba(255, 255, 255, 0.2);
+                    border-right: 1px solid rgba(255, 255, 255, 0.2);
+                    padding: 0.6rem 0.5rem;
                 }
                 
                 .inline-table tfoot td:last-child {
@@ -152,28 +196,42 @@ export default function CartesBancairesPage() {
                 
                 .loading-spinner {
                     text-align: center;
-                    padding: 3rem;
+                    padding: 2rem;
                 }
                 
                 .error-message {
                     background: #f8d7da;
                     color: #721c24;
-                    padding: 1rem;
-                    border-radius: 10px;
+                    padding: 0.75rem 1rem;
+                    border-radius: 6px;
                     margin: 1rem 0;
                     text-align: center;
+                    font-size: 0.85rem;
+                    border-left: 3px solid #dc3545;
                 }
                 
                 .empty-state {
                     text-align: center;
-                    padding: 3rem;
+                    padding: 2rem;
                     color: #6c757d;
                 }
                 
                 .empty-state i {
-                    font-size: 3rem;
+                    font-size: 2.5rem;
                     margin-bottom: 1rem;
                     opacity: 0.5;
+                }
+                
+                @media (max-width: 768px) {
+                    .cartes-header,
+                    .cartes-table-container {
+                        margin: 0.5rem;
+                        padding: 0.75rem;
+                    }
+                    
+                    .cartes-title {
+                        font-size: 1.2rem;
+                    }
                 }
             `}</style>
 
@@ -236,7 +294,7 @@ export default function CartesBancairesPage() {
                                     <tfoot>
                                         <tr>
                                             <td colSpan="3">TOTAL</td>
-                                            <td>{formatMontant(charges.reduce((sum, c) => sum + parseFloat(c.montant || 0), 0))}</td>
+                                            <td style={{ color: '#ffffff', fontWeight: 700 }}>{formatMontant(charges.reduce((sum, c) => sum + parseFloat(c.montant || 0), 0))}</td>
                                         </tr>
                                     </tfoot>
                                 </table>

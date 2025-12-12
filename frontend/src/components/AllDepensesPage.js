@@ -86,35 +86,224 @@ export default function AllDepensesPage() {
     <>
       <style jsx global>{`
         body, html {
+          background: rgb(187, 187, 187) !important;
           height: auto !important;
           overflow-x: hidden;
           overflow-y: auto;
         }
         
-        .all-depenses-page { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 0.75rem 0; }
-        .action-container { background: white; border-radius: 16px; padding: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #edf0f3; max-width: 900px; margin: 0 auto 0.75rem auto; }
-        .tabs { display: inline-flex; background: #f1f5f9; border-radius: 999px; padding: 4px; margin: 0 auto 0.75rem auto; }
-        .tab-btn { border: none; background: transparent; padding: 6px 12px; border-radius: 999px; font-weight: 700; color: #334155; cursor: pointer; }
-        .tab-btn.active { background: #0d6efd; color: #fff; box-shadow: 0 4px 10px rgba(13,110,253,.3); }
-        .filter-row { display: flex; gap: 0.5rem; align-items: center; justify-content: center; flex-wrap: wrap; }
-        .filter-row label { margin-bottom: 0; color: #2c3e50; font-weight: 600; }
-        .filter-row input[type="date"], .filter-row select { border: 1px solid #e2e6ea; border-radius: 8px; padding: 6px 10px; }
-        .btn-search { background: linear-gradient(45deg, #28a745, #20c997); color: #fff; border: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
-        .btn-search:hover { background: linear-gradient(45deg, #218838, #1e7e34); }
-        .btn-search:disabled { opacity: 0.7; cursor: not-allowed; }
+        .all-depenses-page { 
+          background: transparent; 
+          min-height: 100vh; 
+          padding: 0.5rem 0; 
+        }
         
-        .inline-results-card { background: white; border-radius: 12px; border: 1px solid #edf0f3; box-shadow: 0 6px 16px rgba(0,0,0,0.06); padding: 1rem; }
-        .inline-table { width: 100%; border-collapse: collapse; }
-        .inline-table thead th { background: #FFB5FC; color: #2c3e50; border-bottom: 2px solid #e6ebf1; font-weight: 700; }
-        .inline-table th, .inline-table td { padding: 0.6rem; border-bottom: 1px solid #eef2f7; text-align: left; }
-        .inline-table tbody tr:hover { background: #fafcff; }
-        .inline-table tfoot td { background: #FFB5FC; color: #2c3e50; font-weight: 700; border-top: 2px solid #e6ebf1; }
+        .action-container { 
+          background: #ffffff; 
+          border-radius: 12px; 
+          padding: 1rem 1.5rem; 
+          box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+          border: 1px solid #d5dbe3; 
+          max-width: 1100px; 
+          margin: 0 auto 1rem auto; 
+        }
+        
+        .filter-title {
+          background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+          color: #ffffff;
+          padding: 0.85rem 1rem;
+          border-radius: 8px;
+          font-weight: 700;
+          font-size: 1.1rem;
+          margin-bottom: 1rem;
+          text-align: center;
+        }
+        
+        .tabs { 
+          display: inline-flex; 
+          background: #f4f6f8; 
+          border-radius: 8px; 
+          padding: 4px; 
+          margin: 0 auto 1rem auto; 
+          border: 1px solid #d5dbe3;
+        }
+        
+        .tab-btn { 
+          border: none; 
+          background: transparent; 
+          padding: 8px 16px; 
+          border-radius: 6px; 
+          font-weight: 600; 
+          color: #495057;
+          font-size: 0.9rem;
+          transition: all 0.2s ease;
+        }
+        
+        .tab-btn:hover {
+          background: rgba(11, 87, 150, 0.1);
+        }
+        
+        .tab-btn.active { 
+          background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%); 
+          color: #fff; 
+          box-shadow: 0 4px 10px rgba(11, 87, 150, 0.25); 
+        }
+        
+        .filter-row { 
+          display: flex; 
+          gap: 0.75rem; 
+          align-items: center; 
+          justify-content: center; 
+          flex-wrap: wrap; 
+        }
+        
+        .filter-row label { 
+          margin-bottom: 0; 
+          color: #2c3e50; 
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
+        
+        .filter-row input[type="date"], 
+        .filter-row select { 
+          border: 1px solid #d5dbe3; 
+          border-radius: 8px; 
+          padding: 6px 12px; 
+          font-size: 0.9rem;
+          background: #ffffff;
+          transition: all 0.2s ease;
+        }
+        
+        .filter-row input[type="date"]:focus, 
+        .filter-row select:focus {
+          outline: none;
+          border-color: #0b5796;
+          box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
+        }
+        
+        .form-check {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .form-check-input {
+          width: 18px;
+          height: 18px;
+          margin: 0;
+          cursor: pointer;
+          accent-color: #0b5796;
+        }
+        
+        .form-check-label {
+          margin: 0;
+          cursor: pointer;
+          font-size: 0.9rem;
+          color: #2c3e50;
+          font-weight: 500;
+        }
+        
+        .btn-search { 
+          background: linear-gradient(135deg, #2E7D32 0%, #256528 100%); 
+          color: #fff; 
+          border: none; 
+          border-radius: 8px; 
+          padding: 8px 20px; 
+          font-weight: 600;
+          font-size: 0.9rem;
+          transition: all 0.2s ease;
+          cursor: pointer;
+        }
+        
+        .btn-search:hover {
+          background: linear-gradient(135deg, #256528 0%, #1e5e22 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 14px rgba(46, 125, 50, 0.3);
+        }
+        
+        .btn-search:disabled {
+          opacity: 0.7;
+          transform: none;
+          cursor: not-allowed;
+        }
+        
+        .inline-results-card { 
+          background: #ffffff; 
+          border-radius: 12px; 
+          border: 1px solid #d5dbe3; 
+          box-shadow: 0 6px 16px rgba(0,0,0,0.08); 
+          padding: 0.75rem; 
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        
+        .inline-table { 
+          width: 100%; 
+          border-collapse: separate;
+          border-spacing: 0;
+          border: 1px solid rgba(213, 219, 227, 0.8);
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        
+        .inline-table thead th { 
+          background: #0b5796; 
+          color: #ffffff; 
+          border-bottom: 1px solid rgba(213, 219, 227, 0.8);
+          border-right: 1px solid rgba(213, 219, 227, 0.8);
+          font-weight: 750;
+          padding: 0.7rem;
+          text-align: left;
+          font-size: 0.88rem;
+        }
+        
+        .inline-table thead th:last-child {
+          border-right: none;
+        }
+        
+        .inline-table th, .inline-table td { 
+          padding: 0.6rem 0.7rem; 
+          border-bottom: 1px solid rgba(227, 231, 238, 0.8);
+          border-right: 1px solid rgba(227, 231, 238, 0.8);
+          text-align: left; 
+          font-size: 0.85rem;
+        }
+        
+        .inline-table td:last-child {
+          border-right: none;
+        }
+        
+        .inline-table tbody tr {
+          background-color: transparent;
+        }
+        
+        .inline-table tbody tr:hover { 
+          background: #f0f6ff; 
+        }
+        
+        .inline-table tbody tr:last-child td {
+          border-bottom: none;
+        }
+        
+        .inline-table tfoot td { 
+          background: #0b5796; 
+          color: #ffffff; 
+          font-weight: 700; 
+          border-top: 1px solid rgba(213, 219, 227, 0.8);
+          border-right: 1px solid rgba(213, 219, 227, 0.8);
+          padding: 0.7rem;
+          font-size: 0.88rem;
+        }
+        
+        .inline-table tfoot td:last-child {
+          border-right: none;
+        }
         
         .modern-spinner {
           width: 20px;
           height: 20px;
           border: 2px solid #f3f3f3;
-          border-top: 2px solid #28a745;
+          border-top: 2px solid #2E7D32;
           border-radius: 50%;
           animation: spin 1s linear infinite;
           display: inline-block;
@@ -126,10 +315,24 @@ export default function AllDepensesPage() {
           100% { transform: rotate(360deg); }
         }
         
+        .alert-danger {
+          background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+          border-radius: 8px;
+          padding: 0.75rem 1rem;
+          max-width: 1100px;
+          margin: 0 auto 1rem auto;
+        }
+        
         @media (max-width: 768px) {
           .action-container {
-            margin: 1rem;
-            padding: 1.5rem;
+            margin: 0.5rem;
+            padding: 1rem;
+          }
+          
+          .inline-results-card {
+            margin: 0 0.5rem;
           }
         }
       `}</style>
@@ -138,7 +341,7 @@ export default function AllDepensesPage() {
         <div className="container">
           {/* Filtres */}
           <div className="action-container text-center">
-            <div style={{fontWeight:800, fontSize:'1.25rem', color:'#334155', marginBottom:'0.5rem'}}>Filtrer les dépenses client</div>
+            <div className="filter-title">Filtrer les dépenses client</div>
             <div className="tabs">
               <button className={`tab-btn ${tab==='jour'?'active':''}`} onClick={()=>setTab('jour')}>Jour</button>
               <button className={`tab-btn ${tab==='mois'?'active':''}`} onClick={()=>setTab('mois')}>Mois</button>
@@ -223,7 +426,8 @@ export default function AllDepensesPage() {
                     {results.map((dep, idx) => {
                       const clientName = dep.client || dep.beneficiaire || '';
                       let libelleText = dep.libelle || dep.description || '-';
-                      libelleText = libelleText.replace(/^\[CGM PAYÉ\]\s*/, '');
+                      // Remplacer [CGM] ou [CGM PAYÉ] par [PAYÉ PAR CGM] dans l'affichage
+                      libelleText = libelleText.replace(/^\[CGM PAYÉ\]\s*/, '[PAYÉ PAR CGM] ').replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
                       const rawText = (dep.libelle || dep.description || '').toUpperCase();
                       const isHonoraire = rawText.includes('HONORAIRES REÇU') || rawText.includes('HONORAIRES RECU') || rawText.includes('AVANCE DE DECLARATION');
                       const montantStyle = { color: isHonoraire ? '#198754' : '#dc3545', fontWeight: 700 };

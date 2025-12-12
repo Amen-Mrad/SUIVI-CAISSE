@@ -84,97 +84,114 @@ export default function PrintReceiptPage() {
         }).format(montant);
     };
 
+    // Normalise un montant venant d'une saisie ou d'un format fr-FR
+    const parseMontantToNumber = (montant) => {
+        if (typeof montant === 'number') {
+            return isNaN(montant) ? 0 : montant;
+        }
+        if (montant === null || montant === undefined) return 0;
+
+        const sanitized = String(montant)
+            // supprime les espaces normaux, insécables et fines insécables
+            .replace(/[ \u00A0\u202F]/g, '')
+            // transforme la virgule en séparateur décimal
+            .replace(/,/g, '.');
+
+        const parsed = parseFloat(sanitized);
+        return isNaN(parsed) ? 0 : parsed;
+    };
+
     // Convertir un nombre en lettres françaises
     const nombreEnLettres = (nombre) => {
         const valeur = Math.floor(parseFloat(nombre) || 0);
 
         if (valeur === 0) return 'zéro';
 
-        const unites = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
-        const dizaines = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
-        const dix = ['dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+        const unites = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
+        const dixaines10a19 = ['dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+        const dizaines = ['', 'dix', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
 
-        if (valeur < 10) {
-            return unites[valeur];
-        }
+        const underHundred = (n) => {
+            if (n < 10) return unites[n];
+            if (n < 20) return dixaines10a19[n - 10];
 
-        if (valeur < 20) {
-            return dix[valeur - 10];
-        }
+            const d = Math.floor(n / 10);
+            const u = n % 10;
 
-        if (valeur < 100) {
-            const d = Math.floor(valeur / 10);
-            const u = valeur % 10;
+            if (d === 7) {
+                // 70 à 79 : soixante-dix, soixante et onze, ...
+                if (u === 1) return 'soixante et onze';
+                return `soixante-${u === 0 ? 'dix' : dixaines10a19[u]}`;
+            }
 
-            if (d === 7 || d === 9) {
-                // soixante-dix, quatre-vingt-dix
-                const base = d === 7 ? 'soixante' : 'quatre-vingt';
-                if (u === 0) {
-                    return d === 7 ? 'soixante-dix' : 'quatre-vingt-dix';
-                } else if (u < 7) {
-                    return `${base}-${unites[u + 10]}`;
-                } else {
-                    return `${base}-${dix[u - 7]}`;
+            if (d === 8) {
+                // 80 à 89
+                if (u === 0) return 'quatre-vingts';
+                return `quatre-vingt-${u === 1 ? 'un' : unites[u]}`;
+            }
+
+            if (d === 9) {
+                // 90 à 99
+                return `quatre-vingt-${u === 0 ? 'dix' : dixaines10a19[u]}`;
+            }
+
+            // 20 à 69
+            const base = dizaines[d];
+            if (u === 1) return `${base} et un`;
+            return u === 0 ? base : `${base}-${unites[u]}`;
+        };
+
+        const underThousand = (n) => {
+            if (n < 100) return underHundred(n);
+
+            const c = Math.floor(n / 100);
+            const reste = n % 100;
+
+            let result = c === 1 ? 'cent' : `${unites[c]} cent`;
+            if (reste === 0) {
+                // "cent" prend un "s" uniquement quand il termine
+                return c > 1 ? `${result}s` : result;
+            }
+            return `${result} ${underHundred(reste)}`;
+        };
+
+        // Gestion récursive des milliers / millions / milliards
+        const convertLarge = (n) => {
+            if (n < 1000) return underThousand(n);
+
+            const scales = [
+                { value: 1000000000, singular: 'milliard', plural: 'milliards' },
+                { value: 1000000, singular: 'million', plural: 'millions' },
+                { value: 1000, singular: 'mille', plural: 'mille' }
+            ];
+
+            for (const scale of scales) {
+                if (n >= scale.value) {
+                    const count = Math.floor(n / scale.value);
+                    const reste = n % scale.value;
+                    const prefixe = scale.value === 1000 && count === 1
+                        ? 'mille'
+                        : `${convertLarge(count)} ${count > 1 ? scale.plural : scale.singular}`;
+                    return reste === 0 ? prefixe : `${prefixe} ${convertLarge(reste)}`;
                 }
             }
+            return '';
+        };
 
-            if (u === 0) {
-                return dizaines[d] + (d === 8 ? 's' : '');
-            } else if (u === 1 && d !== 8) {
-                return dizaines[d] + '-et-un';
-            } else {
-                return dizaines[d] + '-' + unites[u];
-            }
-        }
-
-        if (valeur < 1000) {
-            const c = Math.floor(valeur / 100);
-            const reste = valeur % 100;
-
-            let result = '';
-            if (c === 1) {
-                result = 'cent';
-            } else {
-                result = unites[c] + ' cent';
-            }
-
-            if (reste === 0) {
-                return result + (c > 1 ? 's' : '');
-            } else {
-                // "cent" ne prend pas de "s" quand suivi d'un nombre
-                return result + ' ' + nombreEnLettres(reste);
-            }
-        }
-
-        if (valeur < 1000000) {
-            const m = Math.floor(valeur / 1000);
-            const reste = valeur % 1000;
-
-            let result = '';
-            if (m === 1) {
-                result = 'mille';
-            } else {
-                result = nombreEnLettres(m) + ' mille';
-            }
-
-            if (reste === 0) {
-                return result;
-            } else {
-                return result + ' ' + nombreEnLettres(reste);
-            }
-        }
-
-        // Pour les nombres très grands (millions), on peut simplifier
-        return valeur.toLocaleString('fr-FR');
+        return convertLarge(valeur);
     };
 
     // Format complet avec "dinars" en majuscules, incluant les millimes
     const montantEnLettres = (montant) => {
-        // Convertir le montant en nombre, en gérant les virgules comme séparateurs de milliers
-        let montantStr = String(montant || 0).replace(/,/g, '').replace(/\s/g, '');
-        const montantComplet = parseFloat(montantStr) || 0;
-        const partieEntiere = Math.floor(montantComplet);
-        const partieDecimale = Math.round((montantComplet - partieEntiere) * 1000); // Extraire les 3 décimales (millimes)
+        const montantComplet = parseMontantToNumber(montant);
+        let partieEntiere = Math.floor(montantComplet);
+        let partieDecimale = Math.round((montantComplet - partieEntiere) * 1000); // Extraire les 3 décimales (millimes)
+
+        // Corriger le cas où l'arrondi des millimes fait passer à l'unité supérieure
+        if (partieDecimale === 1000) {
+            partieEntiere += 1;
+            partieDecimale = 0;
+        }
 
         let resultat = '';
 
@@ -242,12 +259,8 @@ export default function PrintReceiptPage() {
             // S'assurer que les valeurs sont correctement parsées même si elles sont des chaînes formatées
             const montantRaw = charge.montant || 0;
             const avanceRaw = charge.avance || 0;
-            const montantParsed = typeof montantRaw === 'string'
-                ? parseFloat(montantRaw.replace(/,/g, '').replace(/\s/g, '')) || 0
-                : parseFloat(montantRaw) || 0;
-            const avanceParsed = typeof avanceRaw === 'string'
-                ? parseFloat(avanceRaw.replace(/,/g, '').replace(/\s/g, '')) || 0
-                : parseFloat(avanceRaw) || 0;
+            const montantParsed = parseMontantToNumber(montantRaw);
+            const avanceParsed = parseMontantToNumber(avanceRaw);
             const isAdvance = montantParsed === 0 && avanceParsed > 0;
             const montant = isAdvance ? avanceParsed : montantParsed;
 
@@ -333,9 +346,7 @@ export default function PrintReceiptPage() {
 
         // Calculer le montant formaté et en lettres - s'assurer que c'est un nombre
         const montantAvanceRaw = charge?.avance || 0;
-        const montantAvance = typeof montantAvanceRaw === 'string'
-            ? parseFloat(montantAvanceRaw.replace(/,/g, '').replace(/\s/g, '')) || 0
-            : parseFloat(montantAvanceRaw) || 0;
+        const montantAvance = parseMontantToNumber(montantAvanceRaw);
         const montantFormatePrint = formatMontant(montantAvance);
         const montantEnLettresPrint = montantEnLettres(montantAvance);
         const clientNomPrint = `${client?.nom || ''} ${client?.prenom || ''}`.trim();
@@ -725,9 +736,7 @@ export default function PrintReceiptPage() {
     // Formater le montant - s'assurer que c'est un nombre
     // Si charge.avance est une chaîne formatée (ex: "100,000"), la convertir en nombre
     const montantAvanceRaw = charge.avance || 0;
-    const montantAvanceNum = typeof montantAvanceRaw === 'string'
-        ? parseFloat(montantAvanceRaw.replace(/,/g, '').replace(/\s/g, '')) || 0
-        : parseFloat(montantAvanceRaw) || 0;
+    const montantAvanceNum = parseMontantToNumber(montantAvanceRaw);
 
     const montantFormate = formatMontant(montantAvanceNum);
     const montantEnLettresFormate = montantEnLettres(montantAvanceNum);

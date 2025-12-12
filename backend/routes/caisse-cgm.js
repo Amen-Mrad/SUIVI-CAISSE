@@ -2,6 +2,28 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 
+// Détection paresseuse des colonnes optionnelles dans la table client
+let clientColumnsCache = null;
+async function getClientColumns() {
+    if (clientColumnsCache !== null) return clientColumnsCache;
+    try {
+        const [rows] = await pool.execute(
+            `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'client'`
+        );
+        const set = new Set(rows.map(r => r.COLUMN_NAME));
+        clientColumnsCache = {
+            hasPrenom: set.has('prenom'),
+            hasTelephone: set.has('telephone'),
+            hasEmail: set.has('email'),
+            hasAdresse: set.has('adresse')
+        };
+    } catch (_) {
+        clientColumnsCache = { hasPrenom: false, hasTelephone: false, hasEmail: false, hasAdresse: false };
+    }
+    return clientColumnsCache;
+}
+
 // Middleware pour obtenir l'utilisateur actuel (à adapter selon votre système d'auth)
 const getCurrentUser = (req) => {
     // Pour l'instant, on récupère depuis les headers ou le body
@@ -168,6 +190,8 @@ router.get('/', async (req, res) => {
         // S'assurer que la table existe
         await ensureTableExists();
 
+        const { hasPrenom } = await getClientColumns();
+        const selectPrenom = hasPrenom ? 'c.prenom as client_prenom' : 'NULL as client_prenom';
         const [operations] = await pool.execute(`
             SELECT 
                 cco.id,
@@ -183,7 +207,7 @@ router.get('/', async (req, res) => {
                 u.nom as user_nom,
                 u.prenom as user_prenom,
                 c.nom as client_nom,
-                c.prenom as client_prenom
+                ${selectPrenom}
             FROM caisse_cgm_operations cco
             LEFT JOIN users u ON u.id = cco.user_id
             LEFT JOIN client c ON c.id = cco.client_id
@@ -292,16 +316,66 @@ router.post('/', async (req, res) => {
         ]);
 
         // Si un charge_id est fourni et que c'est un retrait, marquer la charge comme traitée
+        // ET créer une dépense dans beneficiaires_bureau avec le préfixe [CGM]
         if (charge_id && type_operation === 'retrait') {
             try {
+                // Marquer la charge comme traitée
                 await pool.execute(`
                     UPDATE charges_mensuelles 
                     SET is_cgm_retrait_processed = TRUE 
                     WHERE id = ?
                 `, [charge_id]);
+
+                // Récupérer les informations de la charge pour créer la dépense bureau
+                const [chargeRows] = await pool.execute(`
+                    SELECT ch.libelle, ch.date, ch.montant, ch.avance, c.nom as client_nom
+                    FROM charges_mensuelles ch
+                    LEFT JOIN client c ON c.id = ch.client_id
+                    WHERE ch.id = ?
+                `, [charge_id]);
+
+                if (chargeRows.length > 0) {
+                    const charge = chargeRows[0];
+                    // Déterminer le montant : pour les dépenses (montant > 0, avance = 0), utiliser montant, sinon avance
+                    const chargeLibelle = (charge.libelle || '').toUpperCase();
+                    const isHonoraireRecu = chargeLibelle.includes('HONORAIRES REÇU') || chargeLibelle.includes('AVANCE DE DECLARATION');
+                    const depenseMontant = isHonoraireRecu ? parseFloat(charge.avance || 0) : parseFloat(charge.montant || 0);
+                    
+                    // Ne créer la dépense que si c'est une vraie dépense (pas un honoraire reçu)
+                    if (!isHonoraireRecu && depenseMontant > 0) {
+                        // Vérifier si la dépense n'existe pas déjà (éviter les doublons)
+                        const [existing] = await pool.execute(`
+                            SELECT id FROM beneficiaires_bureau 
+                            WHERE libelle = ? 
+                            AND nom_beneficiaire = ? 
+                            AND montant = ? 
+                            AND DATE(date_operation) = DATE(?)
+                            LIMIT 1
+                        `, [
+                            `[CGM] ${charge.libelle || 'Dépense liée à charge'}`,
+                            charge.client_nom || 'Client',
+                            depenseMontant,
+                            charge.date || new Date().toISOString().slice(0, 10)
+                        ]);
+
+                        // Créer la dépense seulement si elle n'existe pas déjà
+                        if (existing.length === 0) {
+                            await pool.execute(`
+                                INSERT INTO beneficiaires_bureau (nom_beneficiaire, libelle, montant, date_operation)
+                                VALUES (?, ?, ?, ?)
+                            `, [
+                                charge.client_nom || 'Client',
+                                `[CGM] ${charge.libelle || 'Dépense liée à charge'}`,
+                                depenseMontant,
+                                charge.date || new Date().toISOString().slice(0, 10)
+                            ]);
+                            console.log(`✅ Dépense bureau créée automatiquement pour charge_id ${charge_id}`);
+                        }
+                    }
+                }
             } catch (updateError) {
                 // Ne pas faire échouer la requête principale si la colonne n'existe pas encore
-                console.warn('Erreur lors de la mise à jour de is_cgm_retrait_processed:', updateError.message);
+                console.warn('Erreur lors de la mise à jour de is_cgm_retrait_processed ou création dépense bureau:', updateError.message);
             }
         }
 
@@ -334,13 +408,15 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const { hasPrenom } = await getClientColumns();
+        const selectPrenom = hasPrenom ? 'c.prenom as client_prenom' : 'NULL as client_prenom';
         const [operations] = await pool.execute(`
             SELECT 
                 cco.*,
                 u.nom as user_nom,
                 u.prenom as user_prenom,
                 c.nom as client_nom,
-                c.prenom as client_prenom
+                ${selectPrenom}
             FROM caisse_cgm_operations cco
             LEFT JOIN users u ON u.id = cco.user_id
             LEFT JOIN client c ON c.id = cco.client_id

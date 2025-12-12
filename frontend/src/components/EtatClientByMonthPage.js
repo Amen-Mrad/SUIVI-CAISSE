@@ -121,23 +121,23 @@ export default function EtatClientByMonthPage() {
                         </div>
                     )}
 
-                    <div className="action-container" style={{maxWidth: '900px', margin: '0 auto 1rem auto', background: 'white', borderRadius: '16px', padding: '1rem', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1px solid #edf0f3', textAlign: 'center'}}>
-                        <div style={{fontWeight:800, fontSize:'1.25rem', color:'#334155', marginBottom:'0.5rem'}}>Filtrer l'état client</div>
-                        <div className="filter-row" style={{display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop:'0.25rem'}}>
-                            <label className="mb-0 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>Mois</label>
-                            <select value={selectedMonth} onChange={handleMonthChange} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}}>
+                    <div className="action-container" style={{ maxWidth: '900px', margin: '0 auto 1rem auto', background: 'white', borderRadius: '16px', padding: '1rem', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1px solid #edf0f3', textAlign: 'center' }}>
+                        <div style={{ fontWeight: 800, fontSize: '1.25rem', color: '#334155', marginBottom: '0.5rem' }}>Filtrer l'état client</div>
+                        <div className="filter-row" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                            <label className="mb-0 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>Mois</label>
+                            <select value={selectedMonth} onChange={handleMonthChange} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }}>
                                 <option value="">Sélectionner un mois</option>
                                 {months.map(month => (
                                     <option key={month.value} value={month.value}>{month.label}</option>
                                 ))}
                             </select>
-                            <label className="mb-0 ms-2 me-1" style={{marginBottom: 0, color: '#2c3e50', fontWeight: 600}}>Année</label>
-                            <select value={selectedYear} onChange={handleYearChange} style={{border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px'}}>
+                            <label className="mb-0 ms-2 me-1" style={{ marginBottom: 0, color: '#2c3e50', fontWeight: 600 }}>Année</label>
+                            <select value={selectedYear} onChange={handleYearChange} style={{ border: '1px solid #e2e6ea', borderRadius: '8px', padding: '6px 10px' }}>
                                 {years.map(year => (
                                     <option key={year} value={year}>{year}</option>
                                 ))}
                             </select>
-                            <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer'}}>Rechercher</button>
+                            <button className="btn-search" onClick={handleShowEtat} disabled={loading} style={{ background: 'linear-gradient(45deg, #28a745, #20c997)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 700, cursor: 'pointer' }}>Rechercher</button>
                         </div>
                     </div>
                 </div>

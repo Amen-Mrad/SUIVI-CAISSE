@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem('token');
               }
             } else {
-              // Token expiré ou invalide
+
               sessionStorage.removeItem('user');
               sessionStorage.removeItem('token');
               localStorage.removeItem('token');

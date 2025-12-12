@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ClientAddForm from './ClientAddForm';
 
 export default function AllClientsPage() {
@@ -12,6 +12,7 @@ export default function AllClientsPage() {
     const [deleteMode, setDeleteMode] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editingClient, setEditingClient] = useState(null);
+    const navigate = useNavigate();
 
     // Charger tous les clients au montage du composant
     useEffect(() => {
@@ -156,15 +157,28 @@ export default function AllClientsPage() {
                     height: auto !important;
                     overflow-x: hidden;
                     overflow-y: auto;
+                    background:rgb(187, 187, 187);
                 }
                 
                 .all-clients-page {
-                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    background: transparent;
                     min-height: 100vh;
-                    padding: 0.75rem 0; /* compact */
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .page-shell {
+                    max-width: 100%;
+                    margin: 0;
+                    padding: 0 1.25rem;
                 }
                 
                 .all-clients-header { display: none; } /* supprimer le gros header */
+                
+                .container {
+                    padding-top: 0.3rem;
+                    margin-top: 0;
+                }
                 
                 .all-clients-title {
                     background: linear-gradient(45deg, #667eea, #764ba2);
@@ -206,49 +220,38 @@ export default function AllClientsPage() {
                     text-decoration: none;
                 }
                 
-                .all-clients-actions {
-                    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                    border-radius: 18px;
-                    padding: 1.75rem;
-                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 3px 10px rgba(0, 0, 0, 0.05);
-                    border: 2px solid rgba(102, 126, 234, 0.1);
-                    backdrop-filter: none;
-                    margin-bottom: 1.5rem;
+                .container {
                     position: relative;
-                    overflow: hidden;
                 }
-                
-                .all-clients-actions::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 4px;
-                    background: linear-gradient(90deg, #007bff, #ffc107, #dc3545);
-                    border-radius: 18px 18px 0 0;
-                }
+
                 
                 .actions-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 1.25rem;
-                    margin-bottom: 0.5rem;
+                    display: flex;
+                    flex-direction: row;
+                    gap: 0.5rem;
+                    margin: 0;
+                    flex: 0 0 auto;
+                    align-items: center;
                 }
                 
                 .action-btn {
-                    border-radius: 14px;
-                    padding: 16px 28px;
-                    font-weight: 700;
-                    font-size: 1.1rem;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-weight: 500;
+                    font-size: 0.75rem;
+                    transition: all 0.12s ease;
+                    border: 1px solid transparent;
                     position: relative;
                     overflow: hidden;
-                    min-width: 180px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                    letter-spacing: 0.5px;
+                    min-width: 0;
+                    box-shadow: none;
+                    letter-spacing: 0.01px;
                     cursor: pointer;
+                }
+                
+                .action-btn i {
+                    font-size: 0.7rem;
+                    margin-right: 4px;
                 }
                 
                 .action-btn::before {
@@ -284,52 +287,36 @@ export default function AllClientsPage() {
                     height: 300px;
                 }
                 
-                .action-btn-primary {
-                    background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #004085 100%);
-                    color: white;
-                    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-                }
-                
-                .action-btn-primary:hover {
-                    background: linear-gradient(135deg, #0056b3 0%, #004085 50%, #003d7a 100%);
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.5);
-                }
-                
+                /* Ajouter / Modifier = vert */
+                .action-btn-primary,
+                .action-btn-warning,
                 .action-btn-success {
-                    background: linear-gradient(135deg, #28a745 0%, #20c997 50%, #17a2b8 100%);
+                    background: #2E7D32;
                     color: white;
-                    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+                    border-color: #2E7D32;
                 }
                 
+                .action-btn-primary:hover,
+                .action-btn-warning:hover,
                 .action-btn-success:hover {
-                    background: linear-gradient(135deg, #20c997 0%, #17a2b8 50%, #138496 100%);
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.5);
+                    background: #256528;
+                    border-color: #256528;
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 14px rgba(46, 125, 50, 0.2);
                 }
                 
-                .action-btn-warning {
-                    background: linear-gradient(135deg, #ffc107 0%, #ff9800 50%, #f57c00 100%);
-                    color: white;
-                    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
-                }
-                
-                .action-btn-warning:hover {
-                    background: linear-gradient(135deg, #ff9800 0%, #f57c00 50%, #e65100 100%);
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 10px 30px rgba(255, 193, 7, 0.5);
-                }
-                
+                /* Supprimer = rouge */
                 .action-btn-danger {
-                    background: linear-gradient(135deg, #dc3545 0%, #c82333 50%, #bd2130 100%);
+                    background: #C62828; /* rouge sérieux */
                     color: white;
-                    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+                    border-color: #C62828;
                 }
                 
                 .action-btn-danger:hover {
-                    background: linear-gradient(135deg, #c82333 0%, #bd2130 50%, #a71e2a 100%);
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 10px 30px rgba(220, 53, 69, 0.5);
+                    background: #a32121;
+                    border-color: #a32121;
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 14px rgba(198, 40, 40, 0.2);
                 }
                 
                 .action-btn:active {
@@ -337,23 +324,28 @@ export default function AllClientsPage() {
                 }
                 
                 .search-container {
-                    background: white;
-                    border-radius: 14px;
-                    padding: 1rem; /* compact */
-                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-                    border: 1px solid #edf0f3;
+                    background: transparent;
+                    border-radius: 0;
+                    padding: 0.1rem 0;
+                    box-shadow: none;
+                    border: none;
                     backdrop-filter: none;
-                    margin-bottom: 0.75rem; /* compact */
+                    margin: 0.3rem auto 0.3rem auto;
+                    display: flex;
+                    justify-content: center;
+                    max-width: 520px;
+                    width: 100%;
                 }
                 
                 .search-input {
                     width: 100%;
-                    border: 1px solid #e2e6ea;
-                    border-radius: 10px;
-                    padding: 8px 12px; /* compact */
-                    font-size: 0.95rem;
-                    transition: all 0.2s ease;
-                    background: #fafbfc;
+                    border: 1px solid #d5dbe3;
+                    border-radius: 5px;
+                    padding: 6px 10px;
+                    font-size: 0.9rem;
+                    transition: all 0.12s ease;
+                    background: #ffffff;
+                    display: block;
                 }
                 
                 .search-input:focus {
@@ -364,57 +356,82 @@ export default function AllClientsPage() {
                 }
                 
                 .table-container {
-                    background: white;
-                    border-radius: 14px;
-                    padding: 0.75rem; /* compact */
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-                    border: 1px solid #edf0f3;
+                    background: transparent;
+                    border-radius: 0;
+                    padding: 0;
+                    box-shadow: none;
+                    border: none;
                     backdrop-filter: none;
+                    max-width: 520px;
+                    margin: 0 auto;
+                    padding-top: 0;
                 }
                 
                 .table-title {
                     color: #2c3e50;
                     font-weight: 700;
-                    font-size: 1.3rem;
-                    margin-bottom: 1.5rem;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.15rem;
                     text-align: center;
                 }
                 
                 .modern-table {
                     margin: 0;
-                    border-radius: 10px;
-                    overflow: hidden;
+                    border-radius: 0;
+                    overflow: visible;
                     box-shadow: none;
-                    border: 1px solid #e6ebf1; /* style identique à honoraire */
+                    border-collapse: collapse;
+                    width: 100%;
+                    table-layout: fixed;
                 }
                 
-                .modern-table thead {
-                    background: #FFB5FC; /* header rose comme honoraire */
+                 .modern-table thead {
+                     background:rgb(11, 87, 150);/
+                 }
+                 
+                 .modern-table thead th {
+                     background-color:rgb(11, 87, 150);
+                     border: 1px solid #000000;
+                     color: #ffffff;
+                     font-weight: 800;
+                     padding: 0.35rem 0.4rem;
+                     text-align: left;
+                     vertical-align: middle;
+                     font-size: 1rem;
+                     letter-spacing: 0.2px;
+                     font-family: 'Segoe UI', 'Roboto', sans-serif;
+                 }
+                 
+                .modern-table tbody td {
+                    border: 1px solid #000000;
+                    color: #1f2933;
+                    font-weight: 500;
+                    padding: 0.2rem 0.3rem;
+                    text-align: left;
+                    vertical-align: middle;
+                    font-size: 0.88rem;
+                    line-height: 1.15;
                 }
-                
-                .modern-table thead th {
-                    border-bottom: 2px solid #e6ebf1;
-                    color: #2c3e50;
-                    font-weight: 700;
-                    padding: 0.6rem; /* compact */
+
+                /* Largeurs de colonnes et alignement */
+                .modern-table thead th:first-child,
+                .modern-table tbody td:first-child {
+                    width: 35%;
                     text-align: center;
+                }
+
+                .modern-table thead th:nth-child(2),
+                .modern-table tbody td:nth-child(2) {
+                    width: 65%;
                 }
                 
                 .modern-table tbody tr {
-                    transition: background 0.2s ease;
-                    border-bottom: 2px solid #cfd6dd;
+                    transition: background 0.1s ease;
+                    cursor: pointer;
                 }
                 
-                .modern-table tbody tr:hover {
-                    background: #fafcff;
-                }
-                
-                .modern-table tbody td {
-                    border-right: 1px solid #eef2f7;
-                    padding: 0.65rem; /* compact */
-                    text-align: center;
-                    vertical-align: middle;
-                    font-weight: 500;
+                .modern-table tbody tr:hover td {
+                    background: #e3f2fd !important; /* bleu ciel au survol */
                 }
                 
                 .modern-alert {
@@ -459,50 +476,84 @@ export default function AllClientsPage() {
                     100% { transform: rotate(360deg); }
                 }
                 
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(5px);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1rem;
+                }
+                
                 .form-container {
-                    background: white;
-                    border-radius: 20px;
-                    padding: 2rem;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(10px);
-                    margin-bottom: 2rem;
+                    background: #ffffff;
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    border: 1px solid rgba(213, 219, 227, 0.8);
+                    max-width: 600px;
+                    width: 100%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                    animation: modalSlideIn 0.3s ease-out;
+                }
+                
+                @keyframes modalSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-20px) scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
                 }
                 
                 .form-title {
-                    color: #2c3e50;
-                    font-weight: 700;
-                    font-size: 1.3rem;
-                    margin-bottom: 1.5rem;
+                    background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+                    color: #ffffff;
+                    padding: 0.75rem 1rem;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    margin-bottom: 1rem;
                     text-align: center;
                 }
                 
                 .form-group {
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 0.7rem;
                 }
                 
                 .form-label {
-                    color: #495057;
+                    color: #2c3e50;
                     font-weight: 600;
-                    margin-bottom: 0.5rem;
+                    margin-bottom: 0.25rem;
                     display: block;
+                    font-size: 0.9rem;
                 }
                 
                 .form-input {
                     width: 100%;
-                    border: 2px solid #e9ecef;
-                    border-radius: 12px;
-                    padding: 12px 16px;
-                    font-size: 1rem;
-                    transition: all 0.3s ease;
-                    background: #f8f9fa;
+                    border: 1px solid #d5dbe3;
+                    border-radius: 8px;
+                    padding: 8px 11px;
+                    font-size: 0.9rem;
+                    transition: all 0.2s ease;
+                    background: #ffffff;
                 }
                 
                 .form-input:focus {
                     outline: none;
-                    border-color: #667eea;
+                    border-color: #0b5796;
                     background: white;
-                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                    box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
                 }
                 
                 .form-buttons {
@@ -559,14 +610,48 @@ export default function AllClientsPage() {
                     .search-container,
                     .table-container,
                     .form-container {
-                        margin: 1rem;
-                        padding: 1.5rem;
+                        margin: 0.5rem;
+                        padding: 0.75rem;
+                    }
+                    
+                    .search-input {
+                        max-width: 100%;
+                        width: 100%;
+                    }
+                    
+                    .table-container {
+                        max-width: 100%;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .search-input {
+                        max-width: 100%;
+                        width: 100%;
+                        font-size: 0.85rem;
+                        padding: 5px 8px;
+                    }
+                    
+                    .table-container {
+                        max-width: 100%;
+                        overflow-x: auto;
+                    }
+                    
+                    .modern-table {
+                        font-size: 0.8rem;
+                        min-width: 300px;
+                    }
+                    
+                    .modern-table thead th,
+                    .modern-table tbody td {
+                        padding: 0.3rem 0.25rem;
+                        font-size: 0.8rem;
                     }
                 }
             `}</style>
 
-            <div className="all-clients-page">
-                <div className="container">
+            <div className="all-clients-page" style={{ paddingTop: '0', marginTop: '0' }}>
+                <div className="container" style={{ paddingTop: '0.2rem', marginTop: '0' }}>
                     {/* Header */}
                     <div className="all-clients-header">
                         <div className="d-flex justify-content-between align-items-center">
@@ -586,44 +671,6 @@ export default function AllClientsPage() {
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="all-clients-actions">
-                        <div className="actions-grid">
-                            <button
-                                className="action-btn action-btn-primary"
-                                onClick={() => {
-                                    setShowAddForm(true);
-                                    setEditMode(false);
-                                    setDeleteMode(false);
-                                }}
-                            >
-                                <i className="fas fa-plus me-2"></i>
-                                Ajouter Client
-                            </button>
-                            <button
-                                className="action-btn action-btn-warning"
-                                onClick={() => {
-                                    setEditMode(true);
-                                    setShowAddForm(false);
-                                    setDeleteMode(false);
-                                }}
-                            >
-                                <i className="fas fa-edit me-2"></i>
-                                Modifier Client
-                            </button>
-                            <button
-                                className="action-btn action-btn-danger"
-                                onClick={() => {
-                                    setDeleteMode(true);
-                                    setShowAddForm(false);
-                                    setEditMode(false);
-                                }}
-                            >
-                                <i className="fas fa-trash me-2"></i>
-                                Supprimer Client
-                            </button>
-                        </div>
-                    </div>
 
                     {/* Messages */}
                     {successMessage && (
@@ -640,22 +687,24 @@ export default function AllClientsPage() {
                         </div>
                     )}
 
-                    {/* Formulaire d'ajout */}
+                    {/* Formulaire d'ajout - Modal */}
                     {showAddForm && (
-                        <div className="form-container">
-                            <h5 className="form-title">
-                                <i className="fas fa-user-plus me-2"></i>
-                                Ajouter un nouveau client
-                            </h5>
-                            <ClientAddForm
-                                onClientAdded={() => {
-                                    setShowAddForm(false);
-                                    setSuccessMessage('Client ajouté avec succès !');
-                                    fetchAllClients();
-                                    setTimeout(() => setSuccessMessage(''), 3000);
-                                }}
-                                onCancel={() => setShowAddForm(false)}
-                            />
+                        <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
+                            <div className="form-container" onClick={(e) => e.stopPropagation()}>
+                                <h5 className="form-title">
+                                    <i className="fas fa-user-plus me-2"></i>
+                                    Ajouter un nouveau client
+                                </h5>
+                                <ClientAddForm
+                                    onClientAdded={() => {
+                                        setShowAddForm(false);
+                                        setSuccessMessage('Client ajouté avec succès !');
+                                        fetchAllClients();
+                                        setTimeout(() => setSuccessMessage(''), 3000);
+                                    }}
+                                    onCancel={() => setShowAddForm(false)}
+                                />
+                            </div>
                         </div>
                     )}
 
@@ -759,10 +808,7 @@ export default function AllClientsPage() {
 
                     {/* Recherche */}
                     <div className="search-container">
-                        <h5 className="form-title">
-                            <i className="fas fa-search me-2"></i>
-                            Rechercher un client
-                        </h5>
+
                         <input
                             type="text"
                             className="search-input"
@@ -774,10 +820,44 @@ export default function AllClientsPage() {
 
                     {/* Tableau des clients */}
                     <div className="table-container">
-                        <h5 className="table-title">
-                            <i className="fas fa-table me-2"></i>
-                            Liste des Clients ({filteredClients.length})
-                        </h5>
+                        <div className="d-flex justify-content-between align-items-center mb-3" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
+                            <div className="actions-grid" style={{ marginRight: 'auto' }}>
+                                <button
+                                    className="action-btn action-btn-primary"
+                                    onClick={() => {
+                                        setShowAddForm(true);
+                                        setEditMode(false);
+                                        setDeleteMode(false);
+                                    }}
+                                >
+                                    <i className="fas fa-plus me-2"></i>
+                                    Ajouter Client
+                                </button>
+                                <button
+                                    className="action-btn action-btn-warning"
+                                    onClick={() => {
+                                        setEditMode(true);
+                                        setShowAddForm(false);
+                                        setDeleteMode(false);
+                                    }}
+                                >
+                                    <i className="fas fa-edit me-2"></i>
+                                    Modifier Client
+                                </button>
+                            </div>
+                            <button
+                                className="action-btn action-btn-danger"
+                                onClick={() => {
+                                    setDeleteMode(true);
+                                    setShowAddForm(false);
+                                    setEditMode(false);
+                                }}
+                                style={{ marginLeft: 'auto' }}
+                            >
+                                <i className="fas fa-trash me-2"></i>
+                                Supprimer Client
+                            </button>
+                        </div>
 
                         {loading ? (
                             <div className="text-center">
@@ -789,68 +869,74 @@ export default function AllClientsPage() {
                                 <table className="table modern-table">
                                     <thead>
                                         <tr>
-                                             <th>
-                                                <i className="fas fa-phone me-2"></i>
-                                                Code
+                                            <th style={{ width: deleteMode || editMode ? '20%' : '35%' }}>
+                                                <i className="fas fa-user me-2"></i>
+                                                Username
                                             </th>
-                                            <th>
+                                            <th style={{ width: deleteMode || editMode ? '60%' : '65%' }}>
                                                 <i className="fas fa-user me-2"></i>
                                                 Nom
                                             </th>
-                                            <th>
-                                                <i className="fas fa-cogs me-2"></i>
-                                                Actions
-                                            </th>
+                                            {(deleteMode || editMode) && (
+                                                <th style={{ width: '20%' }}>
+                                                    <i className="fas fa-cogs me-2"></i>
+                                                    Actions
+                                                </th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredClients.map((client) => (
-                                            <tr key={client.id}>
-                                                <td>
-                                                    <i className="fas fa-phone me-2 text-primary"></i>
-                                                    {client.telephone}
-                                                </td>
-                                                <td>
-                                                    <strong>{client.nom}</strong>
-                                                    <br />
-                                                </td>
-                                                
-                                                <td>
-                                                    <div className="d-flex gap-2 justify-content-center" role="group">
-                                                        {deleteMode ? (
-                                                            <button
-                                                                className="action-btn action-btn-danger"
-                                                                onClick={() => handleDeleteClient(client.id, client.nom, '')}
-                                                                title="Supprimer client"
-                                                                style={{ padding: '8px 16px', fontSize: '0.9rem' }}
-                                                            >
-                                                                <i className="fas fa-trash me-1"></i>
-                                                                Supprimer
-                                                            </button>
-                                                        ) : editMode ? (
-                                                            <button
-                                                                className="action-btn action-btn-warning"
-                                                                onClick={() => handleEditClient(client)}
-                                                                title="Modifier client"
-                                                                style={{ padding: '8px 16px', fontSize: '0.9rem' }}
-                                                            >
-                                                                <i className="fas fa-edit me-1"></i>
-                                                                Modifier
-                                                            </button>
-                                                        ) : (
-                                                            <Link
-                                                                to={`/client/${client.id}/charges`}
-                                                                className="action-btn action-btn-success"
-                                                                style={{ padding: '8px 16px', fontSize: '0.9rem', textDecoration: 'none' }}
-                                                            >
-                                                                <i className="fas fa-chart-line me-1"></i>
-                                                                Détails
-                                                            </Link>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {filteredClients.map((client) => {
+                                            const actionsVisible = deleteMode || editMode;
+                                            return (
+                                                <tr
+                                                    key={client.id}
+                                                    onClick={() => {
+                                                        if (!actionsVisible) navigate(`/client/${client.id}/charges`);
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (!actionsVisible && e.key === 'Enter') navigate(`/client/${client.id}/charges`);
+                                                    }}
+                                                    tabIndex={0}
+                                                    style={{ cursor: actionsVisible ? 'default' : 'pointer' }}
+                                                >
+                                                    <td style={{ width: actionsVisible ? '20%' : '35%' }}>
+                                                        <i className="fas fa-user me-2 text-primary"></i>
+                                                        {client.username}
+                                                    </td>
+                                                    <td style={{ width: actionsVisible ? '60%' : '65%' }}>{client.nom}</td>
+                                                    {actionsVisible && (
+                                                        <td style={{ width: '20%' }}>
+                                                            <div className="d-flex gap-2 justify-content-center" role="group">
+                                                                {deleteMode ? (
+                                                                    <button
+                                                                        className="action-btn action-btn-danger"
+                                                                        onClick={() =>
+                                                                            handleDeleteClient(client.id, client.nom, '')
+                                                                        }
+                                                                        title="Supprimer client"
+                                                                        style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                                                                    >
+                                                                        <i className="fas fa-trash me-1"></i>
+                                                                        Supprimer
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        className="action-btn action-btn-warning"
+                                                                        onClick={() => handleEditClient(client)}
+                                                                        title="Modifier client"
+                                                                        style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                                                                    >
+                                                                        <i className="fas fa-edit me-1"></i>
+                                                                        Modifier
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -870,4 +956,6 @@ export default function AllClientsPage() {
             </div>
         </>
     );
+
 }
+

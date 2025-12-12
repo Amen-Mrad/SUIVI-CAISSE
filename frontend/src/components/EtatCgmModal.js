@@ -23,6 +23,13 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
             setClientName('');
             setSoldeReporte(null);
 
+            // Réinitialiser les variables globales si c'est un état bureau
+            const etatType = type || window.currentEtatType;
+            if (etatType === 'bureau') {
+                window.currentEtatClientId = null;
+                window.currentEtatType = 'bureau';
+            }
+
             // Récupérer le nom du client si on est dans un contexte client
             const currentClientId = window.currentEtatClientId || window.currentHonorairesClientId;
             if (currentClientId) {
@@ -280,43 +287,136 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
 
             // Construire l'URL avec les paramètres selon le type (bureau ou client)
             if (isBureau) {
-                // Pour le bureau, utiliser l'endpoint par période quand on a des filtres de date
+                // Pour l'état CGM (bureau), on doit récupérer :
+                // 1. Toutes les dépenses bureau
+                // 2. Les dépenses client avec préfixe [CGM] (payées par CGM)
+                
+                // D'abord, récupérer les dépenses bureau
+                let bureauUrl = '/api/depenses/bureau';
                 if (filterType === 'jour' && date) {
-                    url = '/api/depenses/bureau/par-periode';
-                    // Créer un nouveau params pour éviter les doublons
+                    bureauUrl = '/api/depenses/bureau/par-periode';
                     const dateParams = new URLSearchParams();
                     dateParams.append('date_debut', date);
                     dateParams.append('date_fin', date);
-                    url += `?${dateParams.toString()}`;
+                    bureauUrl += `?${dateParams.toString()}`;
                 } else if (filterType === 'periode' && dateDebut && dateFin) {
-                    url = '/api/depenses/bureau/par-periode';
-                    // Créer un nouveau params pour éviter les doublons
+                    bureauUrl = '/api/depenses/bureau/par-periode';
                     const dateParams = new URLSearchParams();
                     dateParams.append('date_debut', dateDebut);
                     dateParams.append('date_fin', dateFin);
-                    url += `?${dateParams.toString()}`;
+                    bureauUrl += `?${dateParams.toString()}`;
                 } else if (filterType === 'mois' && mois && annee) {
-                    // Passer tout le mois au backend pour éviter les soucis de fuseau (Date parsing du navigateur)
                     const start = `${annee}-${String(mois).padStart(2, '0')}-01`;
-                    const endDate = new Date(annee, mois, 0); // dernier jour du mois
+                    const endDate = new Date(annee, mois, 0);
                     const end = `${annee}-${String(mois).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
-                    url = '/api/depenses/bureau/par-periode';
+                    bureauUrl = '/api/depenses/bureau/par-periode';
                     const dateParams = new URLSearchParams();
                     dateParams.append('date_debut', start);
                     dateParams.append('date_fin', end);
-                    url += `?${dateParams.toString()}`;
+                    bureauUrl += `?${dateParams.toString()}`;
                 } else if (filterType === 'annee' && annee) {
                     const start = `${annee}-01-01`;
                     const end = `${annee}-12-31`;
-                    url = '/api/depenses/bureau/par-periode';
+                    bureauUrl = '/api/depenses/bureau/par-periode';
                     const dateParams = new URLSearchParams();
                     dateParams.append('date_debut', start);
                     dateParams.append('date_fin', end);
-                    url += `?${dateParams.toString()}`;
-                } else {
-                    // Sinon, récupérer toutes les dépenses bureau
-                    url = '/api/depenses/bureau';
+                    bureauUrl += `?${dateParams.toString()}`;
                 }
+
+                // Ensuite, récupérer les dépenses client avec [CGM]
+                let clientCgmUrl = '/api/depenses';
+                const clientCgmParams = new URLSearchParams();
+                if (filterType === 'jour' && date) {
+                    clientCgmUrl = '/api/depenses/par-periode';
+                    clientCgmParams.append('date_debut', date);
+                    clientCgmParams.append('date_fin', date);
+                } else if (filterType === 'periode' && dateDebut && dateFin) {
+                    clientCgmUrl = '/api/depenses/par-periode';
+                    clientCgmParams.append('date_debut', dateDebut);
+                    clientCgmParams.append('date_fin', dateFin);
+                } else if (filterType === 'mois' && mois && annee) {
+                    const start = `${annee}-${String(mois).padStart(2, '0')}-01`;
+                    const endDate = new Date(annee, mois, 0);
+                    const end = `${annee}-${String(mois).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+                    clientCgmUrl = '/api/depenses/par-periode';
+                    clientCgmParams.append('date_debut', start);
+                    clientCgmParams.append('date_fin', end);
+                } else if (filterType === 'annee' && annee) {
+                    const start = `${annee}-01-01`;
+                    const end = `${annee}-12-31`;
+                    clientCgmUrl = '/api/depenses/par-periode';
+                    clientCgmParams.append('date_debut', start);
+                    clientCgmParams.append('date_fin', end);
+                }
+                if (clientCgmParams.toString()) {
+                    clientCgmUrl += `?${clientCgmParams.toString()}`;
+                }
+
+                // Récupérer les deux types de dépenses en parallèle
+                console.log('🔍 Fetching dépenses bureau avec URL:', bureauUrl);
+                console.log('🔍 Fetching dépenses client CGM avec URL:', clientCgmUrl);
+                
+                const [bureauResponse, clientCgmResponse] = await Promise.all([
+                    fetch(bureauUrl),
+                    fetch(clientCgmUrl)
+                ]);
+
+                const bureauData = await bureauResponse.json();
+                const clientCgmData = await clientCgmResponse.json();
+
+                console.log('📡 Réponse dépenses bureau:', bureauData);
+                console.log('📡 Réponse dépenses client CGM:', clientCgmData);
+
+                let depensesBureau = bureauData.success ? (bureauData.depenses || []) : [];
+                let depensesClientCgm = clientCgmData.success ? (clientCgmData.depenses || []) : [];
+
+                console.log('📊 Dépenses bureau brutes:', depensesBureau);
+                console.log('📊 Dépenses client brutes:', depensesClientCgm);
+
+                // Filtrer les dépenses client pour ne garder que celles avec [CGM]
+                depensesClientCgm = depensesClientCgm.filter(dep => {
+                    const desc = (dep.description || dep.libelle || '').toUpperCase();
+                    const hasCgm = desc.includes('[CGM]');
+                    if (hasCgm) {
+                        console.log('✅ Dépense client CGM trouvée:', dep);
+                    }
+                    return hasCgm;
+                });
+
+                // Les dépenses bureau incluent déjà celles créées via "Payé par CGM" (elles sont dans beneficiaires_bureau)
+                // Vérifier qu'elles sont bien là
+                const depensesBureauAvecCgm = depensesBureau.filter(dep => {
+                    const desc = (dep.description || dep.libelle || '').toUpperCase();
+                    return desc.includes('[CGM]');
+                });
+                console.log('📊 Dépenses bureau avec [CGM]:', depensesBureauAvecCgm.length, depensesBureauAvecCgm);
+
+                // Combiner les deux listes (déjà toutes les dépenses bureau + dépenses client avec [CGM])
+                let depensesData = [...depensesBureau, ...depensesClientCgm];
+                console.log('📊 Nombre de dépenses bureau:', depensesBureau.length);
+                console.log('📊 Nombre de dépenses client CGM:', depensesClientCgm.length);
+                console.log('📊 Nombre total de dépenses avant filtrage:', depensesData.length);
+
+                // Pas besoin de filtrer par date car le backend l'a déjà fait
+                // Mais on doit exclure les honoraires reçus
+                depensesData = depensesData.filter(depense => {
+                    const description = (depense.description || depense.libelle || '').toUpperCase();
+                    const isHonoraireRecu = description.includes('HONORAIRES REÇU') ||
+                        description.includes('HONORAIRES RECU') ||
+                        description.includes('HONORAIRES REÇU 60');
+                    const isAvanceDeclaration = description.includes('AVANCE DE DECLARATION');
+                    const shouldInclude = !isHonoraireRecu && !isAvanceDeclaration;
+                    if (!shouldInclude) {
+                        console.log('❌ Dépense exclue (honoraire/avance):', depense);
+                    }
+                    return shouldInclude;
+                });
+
+                console.log('📦 Dépenses finales après filtrage honoraires:', depensesData.length);
+                console.log('📦 Détail des dépenses finales:', depensesData);
+                setDepenses(depensesData);
+                return; // Sortir de la fonction car on a déjà traité le cas bureau
             } else {
                 // Pour les dépenses client, utiliser l'endpoint par période quand on a des filtres de date
                 if (filterType === 'jour' && date) {
@@ -361,86 +461,37 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                 }
             }
 
-            // Construire l'URL finale
-            const finalUrl = url;
-            console.log('🔍 Fetching dépenses bureau avec URL:', finalUrl);
-            const response = await fetch(finalUrl);
-            const data = await response.json();
-            console.log('📡 Réponse dépenses bureau:', data);
+                // Construire l'URL finale pour les dépenses client
+                const finalUrl = url;
+                console.log('🔍 Fetching dépenses client avec URL:', finalUrl);
+                const response = await fetch(finalUrl);
+                const data = await response.json();
+                console.log('📡 Réponse dépenses client:', data);
+                console.log('📊 Nombre de dépenses reçues:', data.depenses?.length || 0);
 
-            if (data.success) {
-                let depensesData = data.depenses || [];
+                if (data.success) {
+                    let depensesData = data.depenses || [];
+                    console.log('📦 Dépenses avant filtrage:', depensesData.length);
 
-                // Si on est en contexte bureau, appliquer les filtres côté client
-                if (isBureau) {
-                    const sameDay = (d1, d2) => {
-                        try {
-                            const nd = new Date(d1);
-                            const y = nd.getFullYear();
-                            const m = (nd.getMonth() + 1).toString().padStart(2, '0');
-                            const day = nd.getDate().toString().padStart(2, '0');
-                            const rowDate = `${y}-${m}-${day}`;
-                            return rowDate === d2;
-                        } catch (_) { return false; }
-                    };
-                    const monthOf = (d1) => {
-                        const nd = new Date(d1);
-                        return { y: nd.getFullYear(), m: nd.getMonth() + 1 };
-                    };
-
-                    if (filterType === 'jour' && date) {
-                        depensesData = depensesData.filter(d => sameDay(d.date, date));
-                    } else if (filterType === 'mois' && mois && annee) {
-                        depensesData = depensesData.filter(d => {
-                            const { y, m } = monthOf(d.date);
-                            return y === parseInt(annee) && m === parseInt(mois);
-                        });
-                    } else if (filterType === 'annee' && annee) {
-                        depensesData = depensesData.filter(d => {
-                            const nd = new Date(d.date);
-                            return nd.getFullYear() === parseInt(annee);
-                        });
-                    } else if (filterType === 'periode' && dateDebut && dateFin) {
-                        const start = new Date(dateDebut); start.setHours(0, 0, 0, 0);
-                        const end = new Date(dateFin); end.setHours(23, 59, 59, 999);
-                        depensesData = depensesData.filter(d => {
-                            const nd = new Date(d.date);
-                            return nd >= start && nd <= end;
+                    // Filtrer par bénéficiaire si spécifié
+                    if (filterType === 'beneficiaire' && beneficiaire) {
+                        depensesData = depensesData.filter(depense => {
+                            return depense.beneficiaire &&
+                                depense.beneficiaire.toLowerCase().includes(beneficiaire.toLowerCase());
                         });
                     }
+
+                    // Inclure toutes les dépenses client (y compris celles payées par CGM)
+                    // Le libellé [CGM] sera remplacé par [PAYÉ PAR CGM] dans l'affichage
+
+                    console.log('📦 Dépenses finales après tous les filtres:', depensesData.length);
+                    console.log('📦 Dépenses détaillées:', depensesData);
+                    setDepenses(depensesData);
+                } else {
+                    const errorMessage = data.error || data.message || 'Erreur lors du chargement des dépenses';
+                    console.error('❌ Erreur lors de la récupération des dépenses client:', errorMessage, data);
+                    setError(`Erreur lors de la récupération des dépenses client: ${errorMessage}`);
                 }
-
-                // Filtrer par bénéficiaire si spécifié (pour bureau et client)
-                if (filterType === 'beneficiaire' && beneficiaire) {
-                    depensesData = depensesData.filter(depense => {
-                        return depense.beneficiaire &&
-                            depense.beneficiaire.toLowerCase().includes(beneficiaire.toLowerCase());
-                    });
-                }
-
-                // LOGIQUE CGM: Afficher les dépenses de la table beneficiaires_bureau (dépenses CGM)
-                // Exclure les honoraires reçus et les avances de déclaration (déjà dans la section honoraires)
-                depensesData = depensesData.filter(depense => {
-                    const description = (depense.description || depense.libelle || '').toUpperCase();
-
-                    // Exclure les honoraires reçus (détails dans la section honoraires)
-                    const isHonoraireRecu = description.includes('HONORAIRES REÇU') ||
-                        description.includes('HONORAIRES RECU') ||
-                        description.includes('HONORAIRES REÇU 60');
-
-                    // Exclure les avances de déclaration (déjà dans la section honoraires)
-                    const isAvanceDeclaration = description.includes('AVANCE DE DECLARATION');
-
-                    // Afficher toutes les autres dépenses CGM (sans honoraires et sans avances de déclaration)
-                    return !isHonoraireRecu && !isAvanceDeclaration;
-                });
-
-                setDepenses(depensesData);
-            } else {
-                const errorMessage = data.error || data.message || 'Erreur lors du chargement des dépenses';
-                console.error('❌ Erreur lors de la récupération des dépenses bureau:', errorMessage, data);
-                setError(`Erreur lors de la récupération des dépenses bureau: ${errorMessage}`);
-            }
         } catch (err) {
             console.error('💥 Erreur catch lors de la récupération des dépenses:', err);
             setError(`Erreur lors de la récupération des dépenses bureau: ${err.message || 'Erreur réseau'}`);
@@ -509,6 +560,13 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
         return '';
     };
 
+    const getHonoraireAmount = (honoraire) => {
+        // Utiliser le max entre avance et montant comme dans l'impression/backend
+        const avanceValue = parseFloat(honoraire.avance || 0);
+        const montantValue = parseFloat(honoraire.montant || 0);
+        return Math.max(avanceValue, montantValue);
+    };
+
     const getTotalMontant = () => {
         // Si c'est un état par bénéficiaire, utiliser les données du bénéficiaire
         if (beneficiaireData) {
@@ -518,10 +576,8 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
         const etatType = window.currentEtatType;
 
         if (etatType === 'bureau') {
-            // Pour l'État Bureau : somme de tous les honoraires reçus (montant total)
-            return honoraires.reduce((total, honoraire) => {
-                return total + parseFloat(honoraire.montant || 0);
-            }, 0);
+            // Pour l'État Bureau : somme de tous les honoraires reçus (max entre avance/montant)
+            return honoraires.reduce((total, honoraire) => total + getHonoraireAmount(honoraire), 0);
         } else {
             // Pour l'État Client : somme des avances (comportement actuel)
             return honoraires.reduce((total, honoraire) => {
@@ -540,15 +596,13 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
         const etatType = window.currentEtatType || type;
         const filteredDepenses = depenses.filter(depense => {
             if (etatType === 'bureau') {
-                // Pour l'état CGM (bureau), ne compter que les dépenses avec préfixe [CGM]
-                const description = depense.description || depense.libelle || '';
-                return description.includes('[CGM]');
+                // Bureau: inclure toutes les dépenses bureau (les libellés ne portent plus [CGM])
+                return true;
             } else if (etatType === 'client') {
-                // Pour l'état client, ne compter que les dépenses sans préfixe [CGM]
-                const description = depense.description || depense.libelle || '';
-                return !description.includes('[CGM]');
+                // Client: inclure toutes les dépenses (y compris celles payées par CGM)
+                // Le libellé [CGM] sera remplacé par [PAYÉ PAR CGM] dans l'affichage
+                return true;
             }
-            // Par défaut, compter toutes les dépenses
             return true;
         });
 
@@ -794,7 +848,10 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                                 ) : (
                                     <>
                                       {/* Tableau des Honoraires et Avance de Déclaration */}
-{(honoraires.length > 0 || beneficiaireData) && (
+{(honoraires.length > 0 || beneficiaireData) && (() => {
+    const etatType = window.currentEtatType || type;
+    const isClientMode = etatType === 'client';
+    return (
     <div className="mb-4">
         <h6 className="mb-2 text-dark fw-bold">Détail des Honoraires Reçus</h6>
         <div className="table-responsive">
@@ -803,14 +860,14 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                     <tr>
                         <th className="border p-2">Date</th>
                         <th className="border p-2">Libellé</th>
-                        <th className="border p-2">Client</th>
+                        {!isClientMode && <th className="border p-2">Client</th>}
                         <th className="border p-2">Montant</th>
                     </tr>
                 </thead>
                 <tbody>
                     {beneficiaireData ? (
                         <tr>
-                            <td colSpan="3" className="border p-2 text-center">
+                            <td colSpan={isClientMode ? "2" : "3"} className="border p-2 text-center">
                                 <strong>Total des honoraires reçus</strong>
                             </td>
                             <td className="border p-2 text-end fw-bold text-success">
@@ -824,11 +881,13 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                                 <td className="border p-2">
                                     {honoraire.libelle || '-'}
                                 </td>
-                                <td className="border p-2 text-muted">
-                                    {honoraire.client_nom || ''} {honoraire.client_prenom || ''}
-                                </td>
+                                {!isClientMode && (
+                                    <td className="border p-2 text-muted">
+                                        {honoraire.client_nom || ''} {honoraire.client_prenom || ''}
+                                    </td>
+                                )}
                                 <td className="border p-2 text-end fw-bold text-success">
-                                    {formatMontant(window.currentEtatType === 'bureau' ? honoraire.montant : honoraire.avance)}
+                                    {formatMontant(window.currentEtatType === 'bureau' ? getHonoraireAmount(honoraire) : honoraire.avance)}
                                 </td>
                             </tr>
                         ))
@@ -836,7 +895,7 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                 </tbody>
                 <tfoot className="bg-light">
                     <tr>
-                        <th colSpan="3" className="border p-2 text-end">
+                        <th colSpan={isClientMode ? "2" : "3"} className="border p-2 text-end">
                             TOTAL HONORAIRES REÇUS :
                         </th>
                         <th className="border p-2 text-end text-success">
@@ -847,10 +906,14 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
             </table>
         </div>
     </div>
-)}
+    );
+})()}
 
 {/* Tableau des Dépenses */}
-{(depenses.length > 0 || beneficiaireData) && (
+{(depenses.length > 0 || beneficiaireData) && (() => {
+    const etatType = window.currentEtatType || type;
+    const isClientMode = etatType === 'client';
+    return (
     <div className="mb-4">
         <h6 className="mb-2 text-dark fw-bold">Détail des Dépenses</h6>
         <div className="table-responsive">
@@ -859,7 +922,7 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                     <tr>
                         <th className="border p-2">Date</th>
                         <th className="border p-2">Libellé</th>
-                        <th className="border p-2">Client</th>
+                        {!isClientMode && <th className="border p-2">Client</th>}
                         <th className="border p-2">Montant</th>
                     </tr>
                 </thead>
@@ -872,13 +935,16 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                             const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
                             
                             let libelleText = depense.description || depense.libelle || '-';
-                            libelleText = libelleText.replace(/^\[CGM\]\s*/, '');
+                            // Remplacer [CGM] par [PAYÉ PAR CGM] dans l'affichage
+                            libelleText = libelleText.replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
                             
                             return (
                                 <tr key={index}>
                                     <td className="border p-2">{formatDateForDisplay(depense.date)}</td>
                                     <td className="border p-2">{libelleText}</td>
-                                    <td className="border p-2">{clientName || '-'}</td>
+                                    {!isClientMode && (
+                                        <td className="border p-2">{clientName || '-'}</td>
+                                    )}
                                     <td className="border p-2 text-end fw-bold text-primary">
                                         {formatMontant(depense.montant)}
                                     </td>
@@ -890,11 +956,11 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                             .filter(depense => {
                                 const etatType = window.currentEtatType || type;
                                 if (etatType === 'bureau') {
-                                    const description = depense.description || depense.libelle || '';
-                                    return description.includes('[CGM]');
+                                    return true; // inclure toutes les dépenses bureau
                                 } else if (etatType === 'client') {
-                                    const description = depense.description || depense.libelle || '';
-                                    return !description.includes('[CGM]');
+                                    // Client: inclure toutes les dépenses (y compris celles payées par CGM)
+                                    // Le libellé [CGM] sera remplacé par [PAYÉ PAR CGM] dans l'affichage
+                                    return true;
                                 }
                                 return true;
                             })
@@ -905,13 +971,16 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                                 const clientName = isCgmDepense ? (depense.nom_beneficiaire || depense.beneficiaire || depense.client) : (depense.beneficiaire || depense.client);
                                 
                                 let libelleText = depense.description || depense.libelle || '-';
-                                libelleText = libelleText.replace(/^\[CGM\]\s*/, '');
+                                // Remplacer [CGM] par [PAYÉ PAR CGM] dans l'affichage
+                                libelleText = libelleText.replace(/^\[CGM\]\s*/, '[PAYÉ PAR CGM] ');
                                 
                                 return (
                                     <tr key={index}>
                                         <td className="border p-2">{formatDateForDisplay(depense.date)}</td>
                                         <td className="border p-2">{libelleText}</td>
-                                        <td className="border p-2">{clientName || '-'}</td>
+                                        {!isClientMode && (
+                                            <td className="border p-2">{clientName || '-'}</td>
+                                        )}
                                         <td className="border p-2 text-end fw-bold text-primary">
                                             {formatMontant(depense.montant)}
                                         </td>
@@ -922,7 +991,7 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
                 </tbody>
                 <tfoot className="bg-light">
                     <tr>
-                        <th colSpan="3" className="border p-2 text-end">
+                        <th colSpan={isClientMode ? "2" : "3"} className="border p-2 text-end">
                             TOTAL DÉPENSES :
                         </th>
                         <th className="border p-2 text-end text-primary">
@@ -933,7 +1002,8 @@ export default function EtatCgmModal({ show, onClose, filteredData = null, type 
             </table>
         </div>
     </div>
-)}
+    );
+})()}
 
 {/* Tableau de Synthèse */}
 <div className="mt-4">

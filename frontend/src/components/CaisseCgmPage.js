@@ -21,6 +21,21 @@ export default function CaisseCgmPage() {
     operation_sign: 'moins'
   });
 
+  // #region agent log
+  const logEvent = (payload) => {
+    fetch('http://127.0.0.1:7242/ingest/4c19617c-ffd9-4631-93bb-12be75be63ad', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'run1',
+        ...payload,
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+  };
+  // #endregion
+
   // Charger les opérations et le solde
   const fetchData = async () => {
     try {
@@ -93,6 +108,31 @@ export default function CaisseCgmPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    if (showForm) {
+      // #region agent log
+      logEvent({
+        hypothesisId: 'H1',
+        location: 'CaisseCgmPage.js:showFormEffect',
+        message: 'Form visible state changed',
+        data: { showForm, type_operation: formData.type_operation }
+      });
+      // #endregion
+    }
+  }, [showForm, formData.type_operation]);
+
+  const instrumentedOpenFormFor = (type) => {
+    // #region agent log
+    logEvent({
+      hypothesisId: 'H2',
+      location: 'CaisseCgmPage.js:openFormFor',
+      message: 'Open form requested',
+      data: { requestedType: type }
+    });
+    // #endregion
+    openFormFor(type);
+  };
+
   // Modifier une opération (pré-remplir le formulaire)
   const handleEditOperation = (operation) => {
     // Seules valeurs autorisées dans le sélecteur: 'retrait' | 'autre'
@@ -159,6 +199,15 @@ export default function CaisseCgmPage() {
     setError('');
     setSuccessMessage('');
     setLoading(true);
+
+    // #region agent log
+    logEvent({
+      hypothesisId: 'H3',
+      location: 'CaisseCgmPage.js:handleSubmit:start',
+      message: 'Submit triggered',
+      data: { type_operation: formData.type_operation, montant: formData.montant }
+    });
+    // #endregion
 
     // S'assurer que le montant est toujours positif
     const montantPositif = Math.abs(parseFloat(formData.montant || 0));
@@ -269,49 +318,60 @@ export default function CaisseCgmPage() {
   }
 
   return (
-    <div className="container-fluid mt-4">
-      <style>{`
+    <div className="container-fluid mt-4 caisse-page">
+      <style jsx global>{`
+        body, html {
+          background: rgb(187, 187, 187) !important;
+        }
+        .caisse-page {
+          background: transparent;
+          min-height: 100vh;
+          padding: 0.25rem 0;
+        }
         .caisse-header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 2rem;
+          background: linear-gradient(135deg, #0b5796 0%, #0d6efd 100%);
+          color: #ffffff;
+          padding: 0.9rem 1.25rem;
           border-radius: 12px;
-          margin-bottom: 2rem;
+          margin: 0 auto 1rem auto;
+          max-width: 1100px;
+          width: 100%;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(11, 87, 150, 0.35);
         }
         .solde-display {
-          font-size: 2.5rem;
-          font-weight: 700;
+          font-size: 1.9rem;
+          font-weight: 800;
           color: #ffd700;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+          letter-spacing: 0.2px;
         }
         
-        /* Styles modernes pour le formulaire */
+        /* Styles alignés avec la nouvelle charte */
         .form-container {
-          background: white;
-          border-radius: 20px;
-          padding: 2rem;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-          max-width: 100%;
+          background: #f4f6f8;
+          border-radius: 12px;
+          padding: 1.25rem;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+          border: 1px solid #d5dbe3;
+          max-width: 1100px;
           margin: 0 auto;
+          width: 100%;
         }
         
         .modern-add-form {
-          background: white;
-          border-radius: 20px;
-          padding: 2rem;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
+          background: #ffffff;
+          border-radius: 10px;
+          padding: 1.25rem;
+          box-shadow: none;
+          border: 1px solid #d5dbe3;
         }
         
         .modern-add-form .modern-alert {
           border-radius: 12px;
           border: none;
           padding: 1rem 1.5rem;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
           font-weight: 500;
         }
         
@@ -328,45 +388,45 @@ export default function CaisseCgmPage() {
         }
         
         .modern-add-form .modern-form-group {
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
         }
         
         .modern-add-form .modern-form-label {
-          color: #495057;
+          color: #2c3e50;
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.4rem;
           display: block;
         }
         
         .modern-add-form .modern-form-input {
           width: 100%;
-          border: 2px solid #e9ecef;
-          border-radius: 12px;
-          padding: 12px 16px;
-          font-size: 1rem;
-          transition: all 0.3s ease;
-          background: #f8f9fa;
+          border: 1px solid #d5dbe3;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 0.95rem;
+          transition: all 0.2s ease;
+          background: #ffffff;
         }
         
         .modern-add-form .modern-form-input:focus {
           outline: none;
-          border-color: #667eea;
+          border-color: #0b5796;
           background: white;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 2px rgba(11, 87, 150, 0.12);
         }
         
         .modern-add-form .modern-form-buttons {
           display: flex;
           gap: 1rem;
           justify-content: center;
-          margin-top: 2rem;
+          margin-top: 1rem;
         }
         
         .modern-add-form .modern-form-btn {
           border-radius: 12px;
-          padding: 12px 24px;
-          font-weight: 600;
-          transition: all 0.3s ease;
+          padding: 12px 22px;
+          font-weight: 700;
+          transition: all 0.2s ease;
           border: none;
           min-width: 120px;
           position: relative;
@@ -395,33 +455,53 @@ export default function CaisseCgmPage() {
         
         .modern-add-form .modern-form-btn-secondary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+          box-shadow: 0 8px 18px rgba(108, 117, 125, 0.28);
         }
         
         .modern-add-form .modern-form-btn-success {
-          background: linear-gradient(45deg, #28a745, #20c997);
+          background: linear-gradient(45deg, #0b5796, #0c5fa9);
           color: white;
         }
         
         .modern-add-form .modern-form-btn-success:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+          box-shadow: 0 8px 18px rgba(11, 87, 150, 0.35);
         }
         
         .modern-add-form .modern-form-btn:disabled {
           opacity: 0.7;
           transform: none;
+          box-shadow: none;
         }
         
         .modern-add-form .modern-spinner {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           border: 2px solid #f3f3f3;
-          border-top: 2px solid #28a745;
+          border-top: 2px solid #0b5796;
           border-radius: 50%;
           animation: spin 1s linear infinite;
           display: inline-block;
           margin-right: 8px;
+        }
+        /* Overlay pour la modale Retrait / Dépôt */
+        .caisse-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.55);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1.5rem;
+          z-index: 1050;
+        }
+        .caisse-modal-card {
+          max-width: 1100px;
+          width: 100%;
+          max-height: 90vh;
+          overflow: auto;
+          border-radius: 16px;
+          box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
         
         @keyframes spin {
@@ -436,13 +516,13 @@ export default function CaisseCgmPage() {
           <div>
             <h2 className="mb-2">
               <i className="fas fa-wallet me-2"></i>
-              Caisse CGM 
+              Caisse CGM
             </h2>
           </div>
           <div className="text-end">
             <div className="text-white-50 small mb-1">Solde Actuel</div>
             <div className="solde-display">
-            LIVE🟢{formatMontant(soldeActuel)}
+              LIVE 🟢 {formatMontant(soldeActuel)}
             </div>
           </div>
         </div>
@@ -466,11 +546,11 @@ export default function CaisseCgmPage() {
       )}
 
       {/* Boutons d'accès rapide Retrait / Dépôt */}
-      <div className="d-flex gap-2 mb-3 justify-content-end">
-        <button className="btn btn-danger" onClick={() => openFormFor('retrait')}>
+      <div className="d-flex gap-2 mb-3 justify-content-center">
+        <button className="btn btn-danger" onClick={() => instrumentedOpenFormFor('retrait')}>
           <i className="fas fa-minus me-1"></i> Retrait
         </button>
-        <button className="btn btn-success" onClick={() => openFormFor('depot')}>
+        <button className="btn btn-success" onClick={() => instrumentedOpenFormFor('depot')}>
           <i className="fas fa-plus me-1"></i> Dépôt
         </button>
         {showForm && (
@@ -480,138 +560,140 @@ export default function CaisseCgmPage() {
         )}
       </div>
 
-      {/* Formulaire moderne */}
+      {/* Formulaire moderne - affiché en modal avec arrière-plan transparent */}
       {showForm && (
-        <div className="form-container mb-4">
-          <div className="modern-add-form">
-            {error && (
-              <div className="modern-alert modern-alert-danger">
-                <i className="fas fa-exclamation-triangle me-2"></i>
-                {error}
-              </div>
-            )}
+        <div className="caisse-modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="caisse-modal-card form-container mb-4" onClick={(e) => e.stopPropagation()}>
+            <div className="modern-add-form">
+              {error && (
+                <div className="modern-alert modern-alert-danger">
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  {error}
+                </div>
+              )}
 
-            {successMessage && (
-              <div className="modern-alert modern-alert-success">
-                <i className="fas fa-check-circle me-2"></i>
-                {successMessage}
-              </div>
-            )}
+              {successMessage && (
+                <div className="modern-alert modern-alert-success">
+                  <i className="fas fa-check-circle me-2"></i>
+                  {successMessage}
+                </div>
+              )}
 
-            {/* En-tête du formulaire */}
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              padding: '1rem 1.5rem',
-              borderRadius: '12px 12px 0 0',
-              margin: '-2rem -2rem 2rem -2rem',
-              fontWeight: '700',
-              fontSize: '1.2rem',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              <i className={`fas fa-${isEditing ? 'edit' : 'plus-circle'} me-2`}></i>
-              {isEditing ? 'Modifier l\'Opération' : `Nouvelle Opération - ${formData.type_operation === 'depot' ? 'Dépôt' : 'Retrait'}`}
+              {/* En-tête du formulaire */}
+              <div style={{
+                background: 'linear-gradient(135deg, #0b5796 0%, #0d6efd 100%)',
+                color: 'white',
+                padding: '1rem 1.5rem',
+                borderRadius: '12px 12px 0 0',
+                margin: '-1.25rem -1.25rem 1.25rem -1.25rem',
+                fontWeight: '750',
+                fontSize: '1.15rem',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <i className={`fas fa-${isEditing ? 'edit' : 'plus-circle'} me-2`}></i>
+                {isEditing ? 'Modifier l\'Opération' : `Nouvelle Opération - ${formData.type_operation === 'depot' ? 'Dépôt' : 'Retrait'}`}
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="row">
+                  <div className="col-md-4">
+                    <div className="modern-form-group">
+                      <label className="modern-form-label">
+                        <i className="fas fa-exchange-alt me-1"></i>
+                        Type d'opération *
+                      </label>
+                      <select
+                        className="modern-form-input"
+                        value={formData.type_operation}
+                        disabled
+                        style={{ cursor: 'not-allowed', opacity: 0.7 }}
+                      >
+                        <option value="retrait">Retrait</option>
+                        <option value="depot">Dépôt</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <div className="modern-form-group">
+                      <label className="modern-form-label">
+                        <i className="fas fa-money-bill me-1"></i>
+                        Montant *
+                      </label>
+                      <input
+                        type="number"
+                        className="modern-form-input"
+                        name="montant"
+                        value={formData.montant}
+                        onChange={handleInputChange}
+                        step="0.001"
+                        min="0.001"
+                        required
+                        placeholder="0.000"
+                        onKeyDown={(e) => {
+                          // Empêcher la saisie du signe moins (-)
+                          if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                      <small style={{
+                        color: '#6c757d',
+                        fontSize: '0.85rem',
+                        marginTop: '0.25rem',
+                        display: 'block'
+                      }}>
+                        {formData.type_operation === 'depot' ? 'Le montant sera ajouté au solde' : 'Le montant sera automatiquement soustrait du solde'}
+                      </small>
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <div className="modern-form-group">
+                      <label className="modern-form-label">
+                        <i className="fas fa-comment me-1"></i>
+                        Commentaire
+                      </label>
+                      <input
+                        type="text"
+                        className="modern-form-input"
+                        name="commentaire"
+                        value={formData.commentaire}
+                        onChange={handleInputChange}
+                        placeholder="Description de l'opération..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="modern-form-buttons">
+                  <button
+                    type="button"
+                    className="modern-form-btn modern-form-btn-secondary"
+                    onClick={() => setShowForm(false)}
+                  >
+                    <i className="fas fa-times me-1"></i>
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="modern-form-btn modern-form-btn-success"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="modern-spinner"></span>
+                        Enregistrement...
+                      </>
+                    ) : (
+                      <>
+                        <i className={`fas fa-${isEditing ? 'edit' : 'save'} me-1`}></i>
+                        {isEditing ? 'Modifier l\'Opération' : 'Enregistrer l\'Opération'}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="row">
-                <div className="col-md-4">
-                  <div className="modern-form-group">
-                    <label className="modern-form-label">
-                      <i className="fas fa-exchange-alt me-1"></i>
-                      Type d'opération *
-                    </label>
-                    <select
-                      className="modern-form-input"
-                      value={formData.type_operation}
-                      disabled
-                      style={{ cursor: 'not-allowed', opacity: 0.7 }}
-                    >
-                      <option value="retrait">Retrait</option>
-                      <option value="depot">Dépôt</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="modern-form-group">
-                    <label className="modern-form-label">
-                      <i className="fas fa-money-bill me-1"></i>
-                      Montant *
-                    </label>
-                    <input
-                      type="number"
-                      className="modern-form-input"
-                      name="montant"
-                      value={formData.montant}
-                      onChange={handleInputChange}
-                      step="0.001"
-                      min="0.001"
-                      required
-                      placeholder="0.000"
-                      onKeyDown={(e) => {
-                        // Empêcher la saisie du signe moins (-)
-                        if (e.key === '-' || e.key === 'e' || e.key === 'E') {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                    <small style={{
-                      color: '#6c757d',
-                      fontSize: '0.85rem',
-                      marginTop: '0.25rem',
-                      display: 'block'
-                    }}>
-                      {formData.type_operation === 'depot' ? 'Le montant sera ajouté au solde' : 'Le montant sera automatiquement soustrait du solde'}
-                    </small>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="modern-form-group">
-                    <label className="modern-form-label">
-                      <i className="fas fa-comment me-1"></i>
-                      Commentaire
-                    </label>
-                    <input
-                      type="text"
-                      className="modern-form-input"
-                      name="commentaire"
-                      value={formData.commentaire}
-                      onChange={handleInputChange}
-                      placeholder="Description de l'opération..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="modern-form-buttons">
-                <button
-                  type="button"
-                  className="modern-form-btn modern-form-btn-secondary"
-                  onClick={() => setShowForm(false)}
-                >
-                  <i className="fas fa-times me-1"></i>
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="modern-form-btn modern-form-btn-success"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="modern-spinner"></span>
-                      Enregistrement...
-                    </>
-                  ) : (
-                    <>
-                      <i className={`fas fa-${isEditing ? 'edit' : 'save'} me-1`}></i>
-                      {isEditing ? 'Modifier l\'Opération' : 'Enregistrer l\'Opération'}
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
@@ -620,25 +702,25 @@ export default function CaisseCgmPage() {
       <div className="form-container">
         <style>{`
           .modern-table-container {
-            background: white;
-            border-radius: 20px;
+            background: #ffffff;
+            border-radius: 12px;
             padding: 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #000;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid #d5dbe3;
             overflow: hidden;
           }
           
-          .modern-table-header {
-            background: #FFB5FC;
-            color: #2c3e50;
-            padding: 1rem 1.5rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #000;
-          }
+        .modern-table-header {
+          background: #0b5796;
+          color: #ffffff;
+          padding: 0.75rem 1rem;
+          font-weight: 750;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid #d5dbe3;
+        }
           
           .modern-table-header .header-title {
             display: flex;
@@ -647,13 +729,13 @@ export default function CaisseCgmPage() {
           }
           
           .modern-table-header .header-icon {
-            color: #667eea;
+            color: #ffffff;
           }
           
           .modern-table-header .counter {
-            background: rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(44, 62, 80, 0.2);
-            color: #2c3e50;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
             padding: 4px 12px;
             border-radius: 999px;
             font-size: 0.9rem;
@@ -670,17 +752,17 @@ export default function CaisseCgmPage() {
             border-collapse: separate;
             border-spacing: 0;
             font-size: 0.95rem;
-            border: 1px solid #000;
+            border: 1px solid #d5dbe3;
           }
           
           .modern-table thead th {
-            background: #FFB5FC;
-            color: #2c3e50;
-            font-weight: 700;
-            padding: 1rem;
+            background: #0b5796;
+            color: #ffffff;
+            font-weight: 750;
+            padding: 0.75rem;
             text-align: left;
-            border-bottom: 2px solid #000;
-            border-right: 1px solid #000;
+            border-bottom: 1px solid #d5dbe3;
+            border-right: 1px solid #d5dbe3;
             white-space: nowrap;
           }
           
@@ -689,9 +771,9 @@ export default function CaisseCgmPage() {
           }
           
           .modern-table tbody td {
-            padding: 1rem;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e3e7ee;
+            border-right: 1px solid #e3e7ee;
             vertical-align: middle;
           }
           
@@ -700,12 +782,12 @@ export default function CaisseCgmPage() {
           }
           
           .modern-table tbody tr {
-            background: white;
+            background: #ffffff;
             transition: all 0.2s ease;
           }
           
           .modern-table tbody tr:hover {
-            background: #fafcff;
+            background: #f4f9ff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
           }
           
@@ -714,12 +796,12 @@ export default function CaisseCgmPage() {
           }
           
           .modern-table tfoot td {
-            background: #FFB5FC;
-            color: #2c3e50;
+            background: #f0f6ff;
+            color: #0b5796;
             font-weight: 700;
-            padding: 1rem;
-            border-top: 2px solid #000;
-            border-right: 1px solid #000;
+            padding: 0.75rem;
+            border-top: 1px solid #d5dbe3;
+            border-right: 1px solid #d5dbe3;
           }
           
           .modern-table tfoot td:last-child {
@@ -774,12 +856,12 @@ export default function CaisseCgmPage() {
           }
           
           .modern-action-btn.edit {
-            background: #ffc107;
-            color: #212529;
+            background: #2E7D32;
+            color: #ffffff;
           }
           
           .modern-action-btn.edit:hover {
-            background: #e0a800;
+            background: #256528;
           }
           
           .modern-action-btn.delete {

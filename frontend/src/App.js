@@ -6,7 +6,6 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Header from './components/Header';
 import UserManagementPage from './components/UserManagementPage';
 import LoginPage from './components/LoginPage';
-import RegisterPage from './components/RegisterPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ClientDetails from './components/ClientDetails';
 import ClientCharges from './components/ClientCharges';
@@ -70,8 +69,6 @@ function App() {
         <div className="App">
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/regst" element={<RegisterPage />} />
           <Route path="/" element={
             <ProtectedRoute>
               <Navigate to="/clients" replace />
